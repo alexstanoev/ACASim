@@ -5,8 +5,9 @@ import java.util.ArrayList;
 public class CPUMemory {
 
 	// 1k of RAM
-	private final int MEMSIZE = 1024;
-	private char[] dmem = new char[MEMSIZE];
+	public static final int MEMSIZE = 128;
+	public static final int NUMREGS = 10;
+	public char[] DMEM = new char[MEMSIZE];
 	
 	// instruction memory - contiguous, variable-length
 	private ArrayList<Integer> imem = new ArrayList<Integer>();
@@ -16,7 +17,7 @@ public class CPUMemory {
 	public int PC;
 	
 	// register file, 10 general-purpose registers
-	public int[] REG = new int[10];
+	public int[] REG = new int[NUMREGS];
 
 	public ArrayList<Integer> getIMemList() {
 		return imem;
@@ -34,7 +35,7 @@ public class CPUMemory {
 	
 	public int memget(int addr) {
 		try {
-			return dmem[addr];
+			return DMEM[addr];
 		} catch(IndexOutOfBoundsException e) {
 			System.err.println("Out of bounds memory access at " + addr);
 			ACASim.getInstance().halt();
