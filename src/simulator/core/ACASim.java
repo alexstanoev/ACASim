@@ -5,10 +5,12 @@ import java.util.LinkedList;
 import javax.swing.SwingUtilities;
 
 import simulator.gui.CPUView;
+import simulator.instructions.NOPInstruction;
 import simulator.stages.DecodeStage;
 import simulator.stages.ExecuteStage;
 import simulator.stages.FetchStage;
 import simulator.stages.IPipelineStage;
+import simulator.stages.Stage;
 import simulator.stages.WritebackStage;
 
 public class ACASim {
@@ -27,7 +29,13 @@ public class ACASim {
 	private volatile boolean doStep = false;
 	private volatile int clockSleepMs = 0;
 
-	private LinkedList<IPipelineStage> pipeline = new LinkedList<IPipelineStage>();
+	public LinkedList<IPipelineStage> pipeline = new LinkedList<IPipelineStage>();
+	public Stage pipelineStage = Stage.FETCH;
+
+	private final int FETCH = 0;
+	//private final int DECODE = 1;
+	//private final int EXECUTE = 2;
+	private final int WRITEBACK = 3;
 
 	public static void main(String[] args) {
 		inst = new ACASim();
@@ -55,7 +63,7 @@ public class ACASim {
 		if(useGUI && guiInst == null) {
 			guiInst = new CPUView();
 		}
-		
+
 		try {
 			inst.loadProgram("/home/alex/dev/cwk/aca/test.hex");
 		} catch(Exception e) {
@@ -115,24 +123,32 @@ public class ACASim {
 	// end
 
 	private void step() {
-		IPipelineStage prev = null;
-		for(IPipelineStage elem : pipeline) {
-			if(!run) break;
+		//IPipelineStage prev = null;
+		//for(IPipelineStage elem : pipeline) {
+		//if(!run) break;
 
-			System.out.println("Tick: " + elem.toString());
-			if(prev != null) {
-				if(elem.canAcceptInstruction()) {
+		IPipelineStage elem = pipeline.get(pipelineStage.val());
+
+		System.out.println("Tick: " + elem.toString() + " Stage: " + pipelineStage);
+
+		if(pipelineStage != Stage.FETCH) {
+			IPipelineStage prev = pipeline.get(pipelineStage.val() - 1);
+
+			if(elem.canAcceptInstruction()) {
+				if(prev.isResultAvailable()) {
 					elem.acceptNextInstruction(prev.getResult());
 					System.out.println("pass instr");
+				} else {
+					//elem.acceptNextInstruction(new NOPInstruction());
+					System.out.println("shove NOP");
 				}
 			}
-
-			elem.tick();
-
-			prev = elem;
-			clockTicks++;
 		}
 		
+		elem.tick();
+
+		clockTicks++;
+
 		if(useGUI) {
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
@@ -141,6 +157,21 @@ public class ACASim {
 				}
 			});
 		}
+
+		// the old instruction is only used for the GUI
+		// this makes the GUI pipeline look like it's advancing
+		if(pipelineStage != Stage.FETCH) {
+			pipeline.get(pipelineStage.val() - 1).clearOldInstruction();
+		} else {
+			pipeline.get(Stage.WRITEBACK.val()).clearOldInstruction();
+		}
+		
+		if(pipelineStage == Stage.WRITEBACK) {
+			pipelineStage = Stage.FETCH;
+		} else {
+			pipelineStage = Stage.fromVal(pipelineStage.val() + 1);
+		}
+
 	}
 
 	public void loadProgram(String filename) throws Exception {
@@ -168,11 +199,11 @@ public class ACASim {
 
 						} else {
 							//synchronized (simThread) {
-								//simThread.wait(clockSleepMs);
+							//simThread.wait(clockSleepMs);
 							//}
 							if(run) {
 								Thread.sleep(clockSleepMs);
-							
+
 								System.out.println("run wait");
 							} else {
 								synchronized (simThread) {

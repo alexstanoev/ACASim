@@ -3,23 +3,22 @@ package simulator.instructions;
 public class UnknownInstruction extends Instruction {
 
 	public UnknownInstruction(int rawForm) {
-		super(rawForm);
+		super(rawForm, 1);
 	}
 	
 	@Override
 	public void execute() {
-		return;
+		throw new IllegalStateException("Attempted to execute UnknownInstruction");
 	}
 
 	@Override
 	public void decode() {
-		// TODO Auto-generated method stub
-		
+		throw new IllegalStateException("Attempted to decode UnknownInstruction");
 	}
 
 	@Override
 	public void writeBack() {
-		return;
+		throw new IllegalStateException("Attempted to writeBack UnknownInstruction");
 	}
 
 }

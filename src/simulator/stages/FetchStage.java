@@ -7,6 +7,7 @@ import simulator.instructions.UnknownInstruction;
 
 public class FetchStage implements IPipelineStage {
 
+	private Instruction old = null;
 	private Instruction curr = null;
 	//private Instruction next = null;
 
@@ -14,12 +15,20 @@ public class FetchStage implements IPipelineStage {
 	public void tick() {
 		System.out.println("FETCH");
 
+		if(!canAcceptInstruction()) {
+			System.out.println("stalled");
+			return;
+		}
+		
 		CPUMemory state = ACASim.getInstance().mem();
 		int currOpcode = state.fetchInstrOpcode(state.PC);
 
 		curr = new UnknownInstruction(currOpcode);
+		curr.setAddress(state.PC);
 
 		state.PC++;
+		
+		old = curr;
 	}
 
 	@Override
@@ -33,10 +42,27 @@ public class FetchStage implements IPipelineStage {
 	}
 
 	@Override
+	public boolean isResultAvailable() {
+		return curr != null;
+	}
+	
+	@Override
 	public Instruction getResult() {
 		Instruction res = curr;
 		curr = null;
 		return res;
+	}
+
+	@Override
+	public Instruction getCurrentInstruction() {
+		return old;
+	}
+
+	@Override
+	public void clearOldInstruction() {
+		if(curr != null) return;
+		
+		old = null;
 	}
 
 }

@@ -3,13 +3,15 @@ package simulator.instructions;
 public class HaltInstruction extends Instruction {
 
 	public HaltInstruction() {
-		super(Opcode.HALT.hex());
+		super(Opcode.HALT.hex(), 1);
 	}
 
 	// (special case) halt the CPU
 	@Override
 	public void execute() {
-		super.cpu.halt();
+		if(super.cyclesPassed()) {
+			super.cpu.halt();
+		}
 	}
 
 	@Override

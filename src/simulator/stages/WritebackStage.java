@@ -4,6 +4,7 @@ import simulator.instructions.Instruction;
 
 public class WritebackStage implements IPipelineStage {
 
+	private Instruction old = null;
 	private Instruction curr = null;
 	private Instruction next = null;
 
@@ -11,6 +12,11 @@ public class WritebackStage implements IPipelineStage {
 	public void tick() {
 		System.out.println("WRITEBACK");
 
+		//if(!canAcceptInstruction()) {
+		//	System.out.println("stalled");
+		//	return;
+		//}
+		
 		if(next == null) {
 			System.out.println("skip");
 			return;
@@ -20,6 +26,8 @@ public class WritebackStage implements IPipelineStage {
 		next = null;
 
 		curr.writeBack();
+		
+		old = curr;
 		
 		curr = null;
 	}
@@ -35,10 +43,25 @@ public class WritebackStage implements IPipelineStage {
 	}
 
 	@Override
+	public boolean isResultAvailable() {
+		return curr != null;
+	}
+	
+	@Override
 	public Instruction getResult() {
 		Instruction res = curr;
 		curr = null;
 		return res;
 	}
+	
+	@Override
+	public Instruction getCurrentInstruction() {
+		return old;
+	}
 
+	@Override
+	public void clearOldInstruction() {
+		old = null;
+	}
+	
 }

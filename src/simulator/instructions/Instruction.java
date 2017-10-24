@@ -8,16 +8,20 @@ public abstract class Instruction {
 	
 	private int rawOpcode; // encoded instruction
 	private Opcode opcode; // decoded opcode
+	private int address;   // address in Imem
 	
 	protected int op1;  // operand 1
 	protected int op2;  // operand 2
 	protected int op3;  // operand 3
 	protected int dest; // destination register
 	
-	protected int result; // temporary result (from Execute stage), written to dest in WriteBack stage
+	protected Integer result = null; // temporary result (from Execute stage), written to dest in WriteBack stage
+	protected int clockCycles; // clock cycles before the result is released
+	protected int currCycles = 0;
 	
-	public Instruction(int _rawOpcode) {
+	public Instruction(int _rawOpcode, int _clockCycles) {
 		this.rawOpcode = _rawOpcode;
+		this.clockCycles = _clockCycles;
 		this.cpu = ACASim.getInstance();
 	}
 	
@@ -42,6 +46,28 @@ public abstract class Instruction {
 	public void _writeBack() {
 		System.out.println("Write to R" + dest + " - " + result);
 		cpu.mem().REG[dest] = result;
+	}
+	
+	public boolean isResultAvailable() {
+		return result != null && currCycles == clockCycles;
+	}
+	
+	protected boolean cyclesPassed() {
+		currCycles++;
+		
+		return currCycles == clockCycles;
+	}
+
+	public void setAddress(int pc) {
+		this.address = pc;
+	}
+	
+	public int getAddress() {
+		return this.address;
+	}
+	
+	public int getCyclesRemaining() {
+		return clockCycles - currCycles;
 	}
 	
 	public abstract void decode();

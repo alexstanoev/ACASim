@@ -4,6 +4,7 @@ import simulator.instructions.*;
 
 public class DecodeStage implements IPipelineStage {
 
+	private Instruction old = null;
 	private Instruction curr = null;
 	private Instruction next = null;
 
@@ -19,6 +20,11 @@ public class DecodeStage implements IPipelineStage {
 	public void tick() {
 		System.out.println("DECODE");
 
+		//if(!canAcceptInstruction()) {
+		//	System.out.println("stalled");
+		//	return;
+		//}
+		
 		if(next == null) {
 			System.out.println("skip");
 			return;
@@ -62,6 +68,8 @@ public class DecodeStage implements IPipelineStage {
 			break;
 		}
 
+		decoded.setOpcode(opc);
+		decoded.setAddress(curr.getAddress());
 		decoded.setOperands(op1Raw, op2Raw, op3Raw);
 		
 		decoded.decode();
@@ -69,6 +77,7 @@ public class DecodeStage implements IPipelineStage {
 		System.out.println("Decoded: " + opc.toString() + " " + op1Raw + " " + op2Raw + " " + op3Raw);
 
 		curr = decoded;
+		old = curr;
 	}
 
 	@Override
@@ -82,10 +91,27 @@ public class DecodeStage implements IPipelineStage {
 	}
 
 	@Override
+	public boolean isResultAvailable() {
+		return curr != null;
+	}
+	
+	@Override
+	public Instruction getCurrentInstruction() {
+		return old;
+	}
+	
+	@Override
 	public Instruction getResult() {
 		Instruction res = curr;
 		curr = null;
 		return res;
 	}
 
+	@Override
+	public void clearOldInstruction() {
+		if(curr != null) return;
+		
+		old = null;
+	}
+	
 }

@@ -3,7 +3,7 @@ package simulator.instructions;
 public class NOPInstruction extends Instruction {
 
 	public NOPInstruction() {
-		super(Opcode.NOP.hex());
+		super(Opcode.NOP.hex(), 1);
 	}
 
 	// do nothing
