@@ -54,7 +54,7 @@ public class ACASim {
 		}
 
 		try {
-			inst.loadProgram("/home/alex/dev/cwk/aca/test.hex");
+			inst.loadProgram("/home/alex/dev/aca/cwk/test.hex");
 		} catch(Exception e) {
 			System.err.println("Failed loading program: " + e.getMessage());
 			e.printStackTrace();
@@ -192,6 +192,7 @@ public class ACASim {
 							//simThread.wait(clockSleepMs);
 							//}
 							if(run) {
+								if(clockSleepMs == 0) clockSleepMs = 10; // yield for GUI
 								Thread.sleep(clockSleepMs);
 
 								System.out.println("run wait");

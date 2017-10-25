@@ -1,6 +1,9 @@
 package simulator.stages;
 
 import simulator.instructions.*;
+import simulator.instructions.alu.*;
+//import simulator.instructions.lds.*;
+import simulator.instructions.branch.*;
 
 public class DecodeStage implements IPipelineStage {
 
@@ -48,23 +51,49 @@ public class DecodeStage implements IPipelineStage {
 			decoded = new NOPInstruction();
 			break;
 		case ADD:
-			decoded = new AddInstruction();
+			decoded = new ADDInstruction();
 			break;
 		case ADDI:
-			decoded = new AddIInstruction();
+			decoded = new ADDIInstruction();
 			break;
 		case CMP:
-
+			//decoded = new CMPInstruction();
+			break;
 		case LD:
 		case LDI:
 		case STR:
 
-		case B:
-		case J:
-		case BL:
-
 		case HALT:
 			decoded = new HaltInstruction();
+			break;
+			
+			
+		case DIV:
+			break;
+		case MUL:
+			break;
+		case SHL:
+			break;
+		case SHR:
+			break;
+		case SUB:
+			break;
+		case XOR:
+			decoded = new XORInstruction();
+			break;
+
+			// BRANCH
+		case J:
+			decoded = new JInstruction();
+			break;			
+		case BGEZ:
+			decoded = new BGEZInstruction();
+			break;
+		case BLTZ:
+			decoded = new BLTZInstruction();
+			break;
+
+		default:
 			break;
 		}
 

@@ -1,8 +1,11 @@
-package simulator.instructions;
+package simulator.instructions.alu;
 
-public class XorInstruction extends Instruction {
+import simulator.instructions.Instruction;
+import simulator.instructions.Opcode;
 
-	public XorInstruction() {
+public class XORInstruction extends Instruction {
+
+	public XORInstruction() {
 		super(Opcode.XOR.hex(), 1);
 	}
 

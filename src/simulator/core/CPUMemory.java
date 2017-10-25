@@ -7,7 +7,7 @@ public class CPUMemory {
 	// 1k of RAM
 	public static final int MEMSIZE = 128;
 	public static final int NUMREGS = 10;
-	public char[] DMEM = new char[MEMSIZE];
+	public int[] DMEM = new int[MEMSIZE];
 	
 	// instruction memory - contiguous, variable-length
 	private ArrayList<Integer> imem = new ArrayList<Integer>();
@@ -17,6 +17,7 @@ public class CPUMemory {
 	public int PC;
 	
 	// register file, 10 general-purpose registers
+	// TODO - 8 vs 32 bit
 	public int[] REG = new int[NUMREGS];
 
 	public ArrayList<Integer> getIMemList() {

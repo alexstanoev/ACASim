@@ -17,7 +17,7 @@ public class ExecuteStage implements IPipelineStage {
 			next = null;
 			old = curr;
 			
-			System.out.println("new instruction " + curr.getRawOpcode());
+			System.out.println("new instruction " + String.format("0x%08X", curr.getRawOpcode()));
 		}
 
 		if(curr == null) {

@@ -1,8 +1,11 @@
-package simulator.instructions;
+package simulator.instructions.alu;
 
-public class AddIInstruction extends Instruction {
+import simulator.instructions.Instruction;
+import simulator.instructions.Opcode;
 
-	public AddIInstruction() {
+public class ADDIInstruction extends Instruction {
+
+	public ADDIInstruction() {
 		super(Opcode.ADDI.hex(), 5);
 	}
 
