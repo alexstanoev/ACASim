@@ -3,7 +3,7 @@ package simulator.instructions;
 public class AddInstruction extends Instruction {
 
 	public AddInstruction() {
-		super(Opcode.ADD.hex(), 5);
+		super(Opcode.ADD.hex(), 1);
 	}
 
 	// ADD R1 R2 R3 -> R3 = R1 + R2

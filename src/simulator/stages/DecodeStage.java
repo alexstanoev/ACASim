@@ -24,12 +24,12 @@ public class DecodeStage implements IPipelineStage {
 		//	System.out.println("stalled");
 		//	return;
 		//}
-		
+
 		if(next == null) {
 			System.out.println("skip");
 			return;
 		}
-		
+
 		curr = next;
 		next = null;
 
@@ -69,9 +69,10 @@ public class DecodeStage implements IPipelineStage {
 		}
 
 		decoded.setOpcode(opc);
+		decoded.setRawOpcode(curr.getRawOpcode());
 		decoded.setAddress(curr.getAddress());
 		decoded.setOperands(op1Raw, op2Raw, op3Raw);
-		
+
 		decoded.decode();
 
 		System.out.println("Decoded: " + opc.toString() + " " + op1Raw + " " + op2Raw + " " + op3Raw);
@@ -94,12 +95,12 @@ public class DecodeStage implements IPipelineStage {
 	public boolean isResultAvailable() {
 		return curr != null;
 	}
-	
+
 	@Override
 	public Instruction getCurrentInstruction() {
 		return old;
 	}
-	
+
 	@Override
 	public Instruction getResult() {
 		Instruction res = curr;
@@ -110,8 +111,8 @@ public class DecodeStage implements IPipelineStage {
 	@Override
 	public void clearOldInstruction() {
 		if(curr != null) return;
-		
+
 		old = null;
 	}
-	
+
 }

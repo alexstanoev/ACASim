@@ -25,6 +25,10 @@ public abstract class Instruction {
 		this.cpu = ACASim.getInstance();
 	}
 	
+	public void setRawOpcode(int _rawOpcode) {
+		this.rawOpcode = _rawOpcode;
+	}
+	
 	public int getRawOpcode() {
 		return rawOpcode;
 	}

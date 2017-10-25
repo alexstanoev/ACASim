@@ -1,16 +1,16 @@
 package simulator.instructions;
 
-public class AddIInstruction extends Instruction {
+public class XorInstruction extends Instruction {
 
-	public AddIInstruction() {
-		super(Opcode.ADDI.hex(), 5);
+	public XorInstruction() {
+		super(Opcode.XOR.hex(), 1);
 	}
 
-	// ADDI R1 I1 R3 -> R3 = R1 + I1
+	// ADD R1 R2 R3 -> R3 = R1 + R2
 	@Override
 	public void execute() {
 		if(super.cyclesPassed()) {
-			super.result = super.cpu.mem().REG[super.op1] + super.op2;
+			super.result = super.cpu.mem().REG[super.op1] ^ super.cpu.mem().REG[super.op2];
 		}
 	}
 
