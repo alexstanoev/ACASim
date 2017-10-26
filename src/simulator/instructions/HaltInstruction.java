@@ -9,9 +9,7 @@ public class HaltInstruction extends Instruction {
 	// (special case) halt the CPU
 	@Override
 	public void execute() {
-		if(super.cyclesPassed()) {
-			super.cpu.halt();
-		}
+		super.cyclesPassed();
 	}
 
 	@Override
@@ -21,7 +19,7 @@ public class HaltInstruction extends Instruction {
 
 	@Override
 	public void writeBack() {
-		return;
+		super.cpu.halt();
 	}
 
 }

@@ -54,7 +54,7 @@ public class ACASim {
 		}
 
 		try {
-			inst.loadProgram("/home/alex/dev/aca/cwk/test.hex");
+			inst.loadProgram("/home/alex/dev/cwk/aca/test.hex");
 		} catch(Exception e) {
 			System.err.println("Failed loading program: " + e.getMessage());
 			e.printStackTrace();
@@ -111,6 +111,57 @@ public class ACASim {
 	}
 	// end
 
+	private void stepPipeline() {
+
+		for(IPipelineStage elem : pipeline) {
+			// the old instruction is only used for the GUI
+			// this makes the GUI pipeline look like it's advancing
+			elem.clearOldInstruction();
+		}
+
+		IPipelineStage next = null;
+		for(int i = 3; i >= 0; i--) {
+			IPipelineStage elem = pipeline.get(i);
+			
+			if(!run) break;
+
+			System.out.println("Tick: " + elem.toString() + " Stage: " + pipelineStage);
+
+			elem.tick();
+
+			if(next != null) {
+
+				if(next.canAcceptInstruction()) {
+					if(elem.isResultAvailable()) {
+						next.acceptNextInstruction(elem.getResult());
+						System.out.println("passing instruction");
+					} else {
+						//elem.acceptNextInstruction(new NOPInstruction());
+						System.out.println("stalling");
+					}
+				}
+
+
+			}
+			
+			next = elem;
+
+		}
+
+		clockTicks++;
+
+		if(useGUI) {
+			SwingUtilities.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					guiInst.update();
+				}
+			});
+		}
+
+
+	}
+
 	private void step() {
 		// TODO put pipeline back in place
 		//IPipelineStage prev = null;
@@ -134,7 +185,7 @@ public class ACASim {
 				}
 			}
 		}
-		
+
 		elem.tick();
 
 		clockTicks++;
@@ -155,7 +206,7 @@ public class ACASim {
 		} else {
 			pipeline.get(Stage.WRITEBACK.val()).clearOldInstruction();
 		}
-		
+
 		if(pipelineStage == Stage.WRITEBACK) {
 			pipelineStage = Stage.FETCH;
 		} else {
@@ -175,7 +226,8 @@ public class ACASim {
 			public void run() {
 				while(true) {
 					if(run) {
-						step();
+						//step();
+						stepPipeline();
 					}
 
 					System.out.println("Ticks: " + clockTicks);

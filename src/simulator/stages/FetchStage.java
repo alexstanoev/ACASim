@@ -23,6 +23,8 @@ public class FetchStage implements IPipelineStage {
 		CPUMemory state = ACASim.getInstance().mem();
 		int currOpcode = state.fetchInstrOpcode(state.PC);
 
+		System.out.println("new instruction " + String.format("0x%08X", currOpcode));
+		
 		curr = new UnknownInstruction(currOpcode);
 		curr.setAddress(state.PC);
 

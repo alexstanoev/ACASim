@@ -36,6 +36,8 @@ public class DecodeStage implements IPipelineStage {
 		curr = next;
 		next = null;
 
+		System.out.println("new instruction " + String.format("0x%08X", curr.getRawOpcode()));
+		
 		int opcRaw = (curr.getRawOpcode() & MSK_OPC) >> 24;
 		int op1Raw = (curr.getRawOpcode() & MSK_OP1) >> 16;
 		int op2Raw = (curr.getRawOpcode() & MSK_OP2) >> 8;
