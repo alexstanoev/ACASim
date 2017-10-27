@@ -7,12 +7,12 @@ public class CPUMemory {
 	public static final int MEMSIZE = 128;
 	public static final int NUMREGS = 10;
 	public int[] DMEM = new int[MEMSIZE];
-	
+
 	// instruction memory - contiguous, variable-length
 	private ArrayList<Integer> imem = new ArrayList<Integer>();
 
 	public int PC;
-	
+
 	// register file, 10 general-purpose registers
 	// special use:
 	// R9  - LR
@@ -22,7 +22,7 @@ public class CPUMemory {
 	public ArrayList<Integer> getIMemList() {
 		return imem;
 	}
-	
+
 	public int fetchInstrOpcode(int iaddr) {
 		try {
 			return imem.get(iaddr);
@@ -32,7 +32,7 @@ public class CPUMemory {
 			return 0;
 		}
 	}
-	
+
 	public int memget(int addr) {
 		try {
 			return DMEM[addr];
@@ -42,5 +42,5 @@ public class CPUMemory {
 			return 0;
 		}
 	}
-	
+
 }

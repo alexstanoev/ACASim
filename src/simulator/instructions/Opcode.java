@@ -15,14 +15,17 @@ public enum Opcode {
 	DIV (0x05, "simulator.instructions.alu.DIVInstruction"),
 	XOR (0x06, "simulator.instructions.alu.XORInstruction"),
 
-	SHL(0x07, "simulator.instructions.alu.XORInstruction"),
-	SHR(0x08, "simulator.instructions.alu.XORInstruction"),
+	SHL(0x07, "simulator.instructions.alu.SHLInstruction"),
+	SHR(0x08, "simulator.instructions.alu.SHRInstruction"),
 
-	CMP(0x07, "simulator.instructions.alu.XORInstruction"),
+	CMP(0x09, "simulator.instructions.alu.CMPInstruction"),
 
 	// LOAD/STORE
+	// load REG[OP1] into DMEM[R2]
 	LD(0x10, "simulator.instructions.lds.LDInstruction"),
+	// load I1 into DMEM[R2]
 	LDI(0x11, "simulator.instructions.lds.LDIInstruction"),
+	// store DMEM[R1] into REG[OP2]
 	ST(0x12, "simulator.instructions.lds.STInstruction"),
 
 	// BRANCH
@@ -30,11 +33,13 @@ public enum Opcode {
 	J(0x20, "simulator.instructions.branch.JInstruction"),
 	// jump to immediate address
 	JI(0x21, "simulator.instructions.branch.JIInstruction"),
+	// jump relative
+	JR(0x22, "simulator.instructions.branch.JRInstruction"),
 	
 	// branch to address in R2 if R1 >= 0
-	BGEZ(0x21,"simulator.instructions.branch.BGEZInstruction"),
-	// branch to address in R2 if R1 <= 0
-	BLTZ(0x22,"simulator.instructions.branch.BLTZInstruction");
+	BGEZ(0x23,"simulator.instructions.branch.BGEZInstruction"),
+	// branch to address in R2 if R1 < 0
+	BLTZ(0x24,"simulator.instructions.branch.BLTZInstruction");
 
 	private int _hex;
 	private String _class;

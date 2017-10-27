@@ -7,6 +7,7 @@ public class HALTInstruction extends Instruction {
 	}
 
 	// (special case) halt the CPU
+	// need to stuff the pipeline with NOPs manually (TODO fix)
 	@Override
 	public void execute() {
 		super.cyclesPassed();

@@ -127,7 +127,6 @@ public class ACASim {
 
 	public void setSleepMs(int ms) {
 		clockSleepMs = ms;
-		//System.out.print("ms: " + ms);
 	}
 	// end
 
@@ -198,10 +197,10 @@ public class ACASim {
 			if(elem.canAcceptInstruction()) {
 				if(prev.isResultAvailable()) {
 					elem.acceptNextInstruction(prev.getResult());
-					System.out.println("passing instruction");
+					//System.out.println("passing instruction");
 				} else {
 					//elem.acceptNextInstruction(new NOPInstruction());
-					System.out.println("stalling");
+					//System.out.println("stalling");
 				}
 			}
 		}
