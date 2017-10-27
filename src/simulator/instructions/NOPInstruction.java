@@ -9,7 +9,8 @@ public class NOPInstruction extends Instruction {
 	// do nothing
 	@Override
 	public void execute() {
-		return;
+		super.cyclesPassed();
+		super.result = 0; // TODO better way
 	}
 
 	@Override

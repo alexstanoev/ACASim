@@ -17,6 +17,8 @@ public class BGEZInstruction extends Instruction {
 				super.cpu.mem().PC = super.dest;
 			}
 		}
+		
+		super.result = 0; // TODO better way
 	}
 
 	@Override

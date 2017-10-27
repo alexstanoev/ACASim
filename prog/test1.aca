@@ -1,0 +1,9 @@
+XOR R1 R1 R1
+ADDI R1 ff R2
+TEST:
+CMP R1 R2
+MUL R1 R2 R3
+JI %TEST
+; branch delay slot
+NOP
+HALT

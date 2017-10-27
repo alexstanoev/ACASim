@@ -28,7 +28,7 @@ public class IOUtils {
 	public static void writeToFile(String filename, ArrayList<String> lines) throws Exception {
 		FileWriter writer = new FileWriter(filename); 
 		for(String str : lines) {
-			writer.write(str);
+			writer.write(str + "\n");
 		}
 		writer.close();
 	}
