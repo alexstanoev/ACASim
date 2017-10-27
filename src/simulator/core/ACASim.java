@@ -11,7 +11,8 @@ public class ACASim {
 
 	private static ACASim inst;
 
-	private boolean useGUI = true;
+	private static boolean useGUI = true;
+	private static String filename = "/home/alex/dev/cwk/aca/test.hex";
 	private CPUView guiInst = null;
 
 	//private Clock clock;
@@ -27,12 +28,31 @@ public class ACASim {
 	public Stage pipelineStage = Stage.FETCH;
 
 	public static void main(String[] args) {
+		if(args.length == 0) {
+			System.out.println("Usage: sim [filename] [gui/nogui]");
+			return;
+		}
+
+		if(args.length > 1) {
+			filename = args[0];
+
+			if(args[1].equals("gui")) {
+				useGUI = true;
+			} else {
+				useGUI = false;
+			}
+		}
+
 		inst = new ACASim();
 		inst.setup();
 
 		inst.guiSetup();
 
 		inst.run();
+
+		if(!useGUI) {
+			inst.runContinuously();
+		}
 	}
 
 	public static ACASim getInstance() {
@@ -54,11 +74,11 @@ public class ACASim {
 		}
 
 		try {
-			inst.loadProgram("/home/alex/dev/cwk/aca/test.hex");
+			inst.loadProgram(filename);
+			System.out.println("Loaded " + filename);
 		} catch(Exception e) {
 			System.err.println("Failed loading program: " + e.getMessage());
-			e.printStackTrace();
-			return;
+			System.exit(0);
 		}
 	}
 
@@ -122,10 +142,10 @@ public class ACASim {
 		IPipelineStage next = null;
 		for(int i = 3; i >= 0; i--) {
 			IPipelineStage elem = pipeline.get(i);
-			
+
 			if(!run) break;
 
-			System.out.println("Tick: " + elem.toString() + " Stage: " + pipelineStage);
+			System.out.println("Tick: " + elem.toString());
 
 			elem.tick();
 
@@ -134,16 +154,16 @@ public class ACASim {
 				if(next.canAcceptInstruction()) {
 					if(elem.isResultAvailable()) {
 						next.acceptNextInstruction(elem.getResult());
-						System.out.println("passing instruction");
+						//System.out.println("passing instruction");
 					} else {
 						//elem.acceptNextInstruction(new NOPInstruction());
-						System.out.println("stalling");
+						//System.out.println("stalling");
 					}
 				}
 
 
 			}
-			
+
 			next = elem;
 
 		}
@@ -162,8 +182,8 @@ public class ACASim {
 
 	}
 
-	private void step() {
-		// TODO put pipeline back in place
+	@SuppressWarnings("unused")
+	private void stepStage() {
 		//IPipelineStage prev = null;
 		//for(IPipelineStage elem : pipeline) {
 		//if(!run) break;
@@ -226,7 +246,7 @@ public class ACASim {
 			public void run() {
 				while(true) {
 					if(run) {
-						//step();
+						//stepStage();
 						stepPipeline();
 					}
 
@@ -240,13 +260,14 @@ public class ACASim {
 							}
 
 						} else {
-							//synchronized (simThread) {
-							//simThread.wait(clockSleepMs);
-							//}
 							if(run) {
-								if(clockSleepMs == 0) clockSleepMs = 10; // yield for GUI
-								Thread.sleep(clockSleepMs);
-
+								if(clockSleepMs == 0) {
+									if(useGUI) {
+										Thread.sleep(10); // yield for GUI
+									}
+								} else {
+									Thread.sleep(clockSleepMs);
+								}
 								System.out.println("run wait");
 							} else {
 								synchronized (simThread) {

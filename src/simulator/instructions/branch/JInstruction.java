@@ -11,6 +11,7 @@ public class JInstruction extends Instruction {
 
 	// ADD R1 R2 R3 -> R3 = R1 + R2
 	// TODO extend opcode length
+	// branch delay slot: the instruction after jumps is always executed
 	@Override
 	public void execute() {
 		if(super.cyclesPassed()) {

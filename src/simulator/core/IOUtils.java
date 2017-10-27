@@ -10,7 +10,7 @@ public class IOUtils {
 		Scanner s = new Scanner(new File(filename));
 		while (s.hasNext()) {
 		    int num = s.nextInt(16);
-		    System.out.println(num);
+		    //System.out.println(num);
 		    imem.add(num);
 		}
 		s.close();
