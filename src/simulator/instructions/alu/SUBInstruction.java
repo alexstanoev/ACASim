@@ -9,7 +9,7 @@ public class SUBInstruction extends Instruction {
 		super(Opcode.SUB.hex(), 1);
 	}
 
-	// ADD R1 R2 R3 -> R3 = R1 + R2
+	// SUB R1 R2 R3 -> R3 = R1 + R2
 	@Override
 	public void execute() {
 		if(super.cyclesPassed()) {

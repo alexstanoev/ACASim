@@ -1,8 +1,8 @@
 package simulator.instructions;
 
-public class HaltInstruction extends Instruction {
+public class HALTInstruction extends Instruction {
 
-	public HaltInstruction() {
+	public HALTInstruction() {
 		super(Opcode.HALT.hex(), 1);
 	}
 

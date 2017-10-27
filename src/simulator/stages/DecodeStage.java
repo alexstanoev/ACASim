@@ -1,9 +1,7 @@
 package simulator.stages;
 
-import simulator.instructions.*;
-import simulator.instructions.alu.*;
-//import simulator.instructions.lds.*;
-import simulator.instructions.branch.*;
+import simulator.instructions.Instruction;
+import simulator.instructions.Opcode;
 
 public class DecodeStage implements IPipelineStage {
 
@@ -37,7 +35,7 @@ public class DecodeStage implements IPipelineStage {
 		next = null;
 
 		System.out.println("new instruction " + String.format("0x%08X", curr.getRawOpcode()));
-		
+
 		int opcRaw = (curr.getRawOpcode() & MSK_OPC) >> 24;
 		int op1Raw = (curr.getRawOpcode() & MSK_OP1) >> 16;
 		int op2Raw = (curr.getRawOpcode() & MSK_OP2) >> 8;
@@ -45,59 +43,7 @@ public class DecodeStage implements IPipelineStage {
 
 		Opcode opc = Opcode.fromHex(opcRaw);
 
-		Instruction decoded = null;
-
-		switch(opc) {
-
-		case NOP:
-			decoded = new NOPInstruction();
-			break;
-		case ADD:
-			decoded = new ADDInstruction();
-			break;
-		case ADDI:
-			decoded = new ADDIInstruction();
-			break;
-		case CMP:
-			//decoded = new CMPInstruction();
-			break;
-		case LD:
-		case LDI:
-		case STR:
-
-		case HALT:
-			decoded = new HaltInstruction();
-			break;
-			
-			
-		case DIV:
-			break;
-		case MUL:
-			break;
-		case SHL:
-			break;
-		case SHR:
-			break;
-		case SUB:
-			break;
-		case XOR:
-			decoded = new XORInstruction();
-			break;
-
-			// BRANCH
-		case J:
-			decoded = new JInstruction();
-			break;			
-		case BGEZ:
-			decoded = new BGEZInstruction();
-			break;
-		case BLTZ:
-			decoded = new BLTZInstruction();
-			break;
-
-		default:
-			break;
-		}
+		Instruction decoded = opc.instantiate();
 
 		decoded.setOpcode(opc);
 		decoded.setRawOpcode(curr.getRawOpcode());

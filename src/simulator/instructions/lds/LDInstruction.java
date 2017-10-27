@@ -6,14 +6,14 @@ import simulator.instructions.Opcode;
 public class LDInstruction extends Instruction {
 
 	public LDInstruction() {
-		super(Opcode.LD.hex(), 1);
+		super(Opcode.LD.hex(), 3);
 	}
 	
-	// LDI I1 R1-> R1 = I1
+	// LD R1 R2-> R2 = DMEM[R1]
 	@Override
 	public void execute() {
 		if(super.cyclesPassed()) {
-			super.cpu.mem().DMEM[super.dest] = super.cpu.mem().REG[super.op2];
+			super.result = super.cpu.mem().DMEM[super.op2];
 		}
 	}
 
@@ -24,7 +24,7 @@ public class LDInstruction extends Instruction {
 
 	@Override
 	public void writeBack() {
-		//super._writeBack();
+		super._writeBack();
 	}
 
 }

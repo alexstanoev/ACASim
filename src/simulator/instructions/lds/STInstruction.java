@@ -3,17 +3,17 @@ package simulator.instructions.lds;
 import simulator.instructions.Instruction;
 import simulator.instructions.Opcode;
 
-public class LDIInstruction extends Instruction {
+public class STInstruction extends Instruction {
 
-	public LDIInstruction() {
-		super(Opcode.LDI.hex(), 1);
+	public STInstruction() {
+		super(Opcode.LD.hex(), 3);
 	}
 	
-	// LDI I1 R1-> R1 = I1
+	// LD R1 R2-> R2 = DMEM[R1]
 	@Override
 	public void execute() {
 		if(super.cyclesPassed()) {
-			super.cpu.mem().DMEM[super.dest] = super.op2;
+			super.result = super.cpu.mem().DMEM[super.op2];
 		}
 	}
 
@@ -24,7 +24,7 @@ public class LDIInstruction extends Instruction {
 
 	@Override
 	public void writeBack() {
-		//super._writeBack();
+		super._writeBack();
 	}
 
 }

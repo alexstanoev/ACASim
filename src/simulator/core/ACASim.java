@@ -250,7 +250,7 @@ public class ACASim {
 						stepPipeline();
 					}
 
-					System.out.println("Ticks: " + clockTicks);
+					System.out.println("Clock cycles: " + clockTicks);
 
 					try {
 						if(doStep) {
@@ -268,7 +268,7 @@ public class ACASim {
 								} else {
 									Thread.sleep(clockSleepMs);
 								}
-								System.out.println("run wait");
+								//System.out.println("run wait");
 							} else {
 								synchronized (simThread) {
 									simThread.wait();
