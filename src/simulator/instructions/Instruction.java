@@ -59,6 +59,10 @@ public abstract class Instruction {
 	protected boolean cyclesPassed() {
 		currCycles++;
 		
+		if(currCycles > clockCycles) {
+			throw new IllegalStateException("Instruction " + opcode + " took more cycles than requested. No result assigned?");
+		}
+		
 		return currCycles == clockCycles;
 	}
 

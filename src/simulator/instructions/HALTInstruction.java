@@ -11,6 +11,8 @@ public class HALTInstruction extends Instruction {
 	@Override
 	public void execute() {
 		super.cyclesPassed();
+		super.result = 1;
+		super.cpu.halt();
 	}
 
 	@Override
@@ -20,7 +22,7 @@ public class HALTInstruction extends Instruction {
 
 	@Override
 	public void writeBack() {
-		super.cpu.halt();
+		return;
 	}
 
 }

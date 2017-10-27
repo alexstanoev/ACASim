@@ -13,7 +13,9 @@ public class LDIInstruction extends Instruction {
 	@Override
 	public void execute() {
 		if(super.cyclesPassed()) {
-			super.result = super.op1;
+			super.cpu.mem().DMEM[super.dest] = super.op1;
+			
+			super.result = 0;
 		}
 	}
 
@@ -24,7 +26,7 @@ public class LDIInstruction extends Instruction {
 
 	@Override
 	public void writeBack() {
-		super._writeBack();
+		//super._writeBack();
 	}
 
 }

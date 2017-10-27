@@ -12,8 +12,12 @@ public class ACASim {
 	private static ACASim inst;
 
 	private static boolean useGUI = true;
-	private static String filename = "/home/alex/dev/cwk/aca/test.hex";
+
+	private static String filename = "prog/test.hex";
 	private CPUView guiInst = null;
+
+	// this will break code relying on branch delay slots!
+	private boolean pipelined = true;
 
 	//private Clock clock;
 	private Thread simThread = null;
@@ -181,7 +185,6 @@ public class ACASim {
 
 	}
 
-	@SuppressWarnings("unused")
 	private void stepStage() {
 		//IPipelineStage prev = null;
 		//for(IPipelineStage elem : pipeline) {
@@ -245,8 +248,11 @@ public class ACASim {
 			public void run() {
 				while(true) {
 					if(run) {
-						//stepStage();
-						stepPipeline();
+						if(pipelined) {
+							stepPipeline();
+						} else {
+							stepStage();
+						}
 					}
 
 					System.out.println("Clock cycles: " + clockTicks);

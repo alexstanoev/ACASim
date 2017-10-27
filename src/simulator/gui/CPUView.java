@@ -330,6 +330,15 @@ public class CPUView extends JFrame {
 		// memory
 		int j = 0;
 		for(int val : mem.DMEM) {
+			String curr = (String) tblDmem.getModel().getValueAt(j, 1);
+			String next = String.format(MEM_BITS_FMT, val);
+
+			if(!next.equals(curr)) {
+				tblDmem.getModel().setValueAt("1", j, 2);
+			} else {
+				tblDmem.getModel().setValueAt("0", j, 2);
+			}
+			
 			tblDmem.getModel().setValueAt(String.format(MEM_BITS_FMT, j), j, 0);
 			tblDmem.getModel().setValueAt(String.format(MEM_BITS_FMT, val), j++, 1);
 		}

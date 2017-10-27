@@ -1,9 +1,57 @@
-XOR R1 R1 R1
-ADDI R1 ff R2
-TEST:
-CMP R1 R2
-MUL R1 R2 R3
-JI %TEST
+; R9 0
+XOR R9 R9 R9
+; R8 1
+ADDI R9 1 R8
+
+; load dummy values into memory
+
+; R0 i = 10
+ADDI R9 10 R0
+; break dependency
+NOP
+
+FILL:
+; B[] at R0
+LD R0 R0
+; C[] at R0+15
+ADDI R0 20 R2
+; i--
+SUB R0 R8 R0
+NOP
+; i > 0 -> J LOOP1
+BGEZ R0 %FILL
 ; branch delay slot
+; C[]
+LD R0 R2
+
+NOP
+
+; R0 i = 10
+ADDI R9 10 R0
+NOP
+
+; results will be in DMEM[20:30]
+VECADD:
+NOP
+; A[] at R0+40
+ADDI R0 40 R3
+; C[] at R0+20
+ADDI R0 20 R2
+; i--
+SUB R0 R8 R0
+; B[] at R0
+ST R0 R4
+ST R2 R5
+NOP
+NOP
+
+; A[i] = B[i] + C[i]
+ADD R4 R5 R6
+; i > 0 -> J LOOP1
+BGEZ R0 %VECADD
+LD R6 R3
+
+NOP
+NOP
 NOP
 HALT

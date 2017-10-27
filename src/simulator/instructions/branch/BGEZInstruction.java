@@ -5,6 +5,7 @@ import simulator.instructions.Opcode;
 
 public class BGEZInstruction extends Instruction {
 
+	// TODO rename to BGZ
 	public BGEZInstruction() {
 		super(Opcode.BGEZ.hex(), 1);
 	}
@@ -13,7 +14,7 @@ public class BGEZInstruction extends Instruction {
 	@Override
 	public void execute() {
 		if(super.cyclesPassed()) {
-			if(super.cpu.mem().REG[super.op1] >= 0) {
+			if(super.cpu.mem().REG[super.op1] > 0) {
 				super.cpu.mem().PC = super.dest;
 			}
 		}
