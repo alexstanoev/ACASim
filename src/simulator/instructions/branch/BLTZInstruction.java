@@ -9,7 +9,7 @@ public class BLTZInstruction extends Instruction {
 		super(Opcode.BLTZ.hex(), 1);
 	}
 
-	// ADD R1 R2 R3 -> R3 = R1 + R2
+	// BGEZ R1 R2 -> PC = (R1 <= 0) ? R2 : PC
 	@Override
 	public void execute() {
 		if(super.cyclesPassed()) {

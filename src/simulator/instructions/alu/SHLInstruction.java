@@ -3,17 +3,17 @@ package simulator.instructions.alu;
 import simulator.instructions.Instruction;
 import simulator.instructions.Opcode;
 
-public class SUBInstruction extends Instruction {
+public class SHLInstruction extends Instruction {
 
-	public SUBInstruction() {
-		super(Opcode.SUB.hex(), 1);
+	public SHLInstruction() {
+		super(Opcode.SHL.hex(), 1);
 	}
 
-	// SUB R1 R2 R3 -> R3 = R1 - R2
+	// SHL R1 R2 R3 -> R3 = R1 << R2
 	@Override
 	public void execute() {
 		if(super.cyclesPassed()) {
-			super.result = super.cpu.mem().REG[super.op1] - super.cpu.mem().REG[super.op2];
+			super.result = super.cpu.mem().REG[super.op1] << super.cpu.mem().REG[super.op2];
 		}
 	}
 

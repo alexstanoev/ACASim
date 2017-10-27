@@ -3,19 +3,19 @@ package simulator.instructions.branch;
 import simulator.instructions.Instruction;
 import simulator.instructions.Opcode;
 
-public class JInstruction extends Instruction {
+public class JIInstruction extends Instruction {
 
-	public JInstruction() {
-		super(Opcode.J.hex(), 1);
+	public JIInstruction() {
+		super(Opcode.JI.hex(), 1);
 	}
 
-	// J OP1 -> PC = REG[OP1]
+	// JI I1 -> PC = I1
 	// branch delay slot: the instruction after jumps is always executed
 	@Override
 	public void execute() {
 		if(super.cyclesPassed()) {
-			System.out.println("PC " + super.cpu.mem().PC + " -> " + super.cpu.mem().REG[super.dest]);
-			super.cpu.mem().PC = super.cpu.mem().REG[super.dest];
+			System.out.println("PC " + super.cpu.mem().PC + " -> " + super.dest);
+			super.cpu.mem().PC = super.dest;
 			
 			// release dummy result (TODO better way)
 			super.result = 0;

@@ -1,7 +1,5 @@
 package simulator.instructions;
 
-import java.lang.reflect.InvocationTargetException;
-
 import simulator.core.ACASim;
 
 public enum Opcode {
@@ -24,19 +22,18 @@ public enum Opcode {
 
 	// LOAD/STORE
 	LD(0x10, "simulator.instructions.lds.LDInstruction"),
-	ST(0x11, "simulator.instructions.lds.STInstruction"),
+	LDI(0x11, "simulator.instructions.lds.LDIInstruction"),
+	ST(0x12, "simulator.instructions.lds.STInstruction"),
 
 	// BRANCH
-
-	// J - address
-	// JR - jump address reg
-	// BGEZ R1 >= 0
-	// BLTZ R1 <= 0
-
-	// BNE/BEQ?
-
+	// jump to address in register
 	J(0x20, "simulator.instructions.branch.JInstruction"),
+	// jump to immediate address
+	JI(0x21, "simulator.instructions.branch.JIInstruction"),
+	
+	// branch to address in R2 if R1 >= 0
 	BGEZ(0x21,"simulator.instructions.branch.BGEZInstruction"),
+	// branch to address in R2 if R1 <= 0
 	BLTZ(0x22,"simulator.instructions.branch.BLTZInstruction");
 
 	private int _hex;
@@ -54,8 +51,7 @@ public enum Opcode {
 	public Instruction instantiate() {
 		try {
 			return (Instruction) Class.forName(_class).getConstructor().newInstance();
-		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
-				| NoSuchMethodException | SecurityException | ClassNotFoundException e) {
+		} catch (Exception e) {
 			System.out.println("Failed to create instance of " + _class + " for opcode " + this);
 			e.printStackTrace();
 			System.exit(0);

@@ -9,7 +9,7 @@ public class XORInstruction extends Instruction {
 		super(Opcode.XOR.hex(), 1);
 	}
 
-	// ADD R1 R2 R3 -> R3 = R1 + R2
+	// XOR R1 R2 R3 -> R3 = R1 ^ R2
 	@Override
 	public void execute() {
 		if(super.cyclesPassed()) {

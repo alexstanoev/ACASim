@@ -6,7 +6,7 @@ import simulator.instructions.Opcode;
 public class ADDIInstruction extends Instruction {
 
 	public ADDIInstruction() {
-		super(Opcode.ADDI.hex(), 5);
+		super(Opcode.ADDI.hex(), 1);
 	}
 
 	// ADDI R1 I1 R3 -> R3 = R1 + I1
