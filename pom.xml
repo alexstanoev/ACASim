@@ -49,6 +49,19 @@
 							</arguments>
 						</configuration>
 					</execution>
+					<execution>
+						<id>asm</id>
+						<goals>
+							<goal>java</goal>
+						</goals>
+						<configuration>
+							<mainClass>simulator.core.ACAAssembler</mainClass>
+							<arguments>
+								<argument>${asmIn}</argument>
+								<argument>${asmOut}</argument>
+							</arguments>
+						</configuration>
+					</execution>
 				</executions>
 			</plugin>
 		</plugins>

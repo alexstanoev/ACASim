@@ -74,4 +74,14 @@ public enum Opcode {
 		System.err.println("Illegal opcode: " + opc);
 		return null;
 	}
+	
+	public static final int MSK_OPC = 0xff000000;
+	public static final int MSK_OP1 = 0x00ff0000;
+	public static final int MSK_OP2 = 0x0000ff00;
+	public static final int MSK_OP3 = 0x000000ff;
+	
+	public static final int POS_OPC = 24;
+	public static final int POS_OP1 = 16;
+	public static final int POS_OP2 = 8;
+	public static final int POS_OP3 = 0;
 }
