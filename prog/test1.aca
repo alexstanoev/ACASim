@@ -30,7 +30,8 @@ NOP
 ADDI R9 10 R0
 NOP
 
-; results will be in DMEM[20:30]
+; vector addition
+; results will be in DMEM[29:32h]
 VECADD:
 NOP
 ; A[] at R0+40
@@ -47,11 +48,11 @@ NOP
 
 ; A[i] = B[i] + C[i]
 ADD R4 R5 R6
-; i > 0 -> J LOOP1
+; i > 0 -> J VECADD
 BGEZ R0 %VECADD
 LD R6 R3
 
 NOP
 NOP
-NOP
 HALT
+NOP

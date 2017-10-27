@@ -1,5 +1,6 @@
 package simulator.stages;
 
+import simulator.core.ACASim;
 import simulator.instructions.Instruction;
 import simulator.instructions.Opcode;
 
@@ -19,7 +20,7 @@ public class DecodeStage implements IPipelineStage {
 
 	@Override
 	public void tick() {
-		System.out.println("DECODE");
+		ACASim.dbgLog("DECODE");
 
 		//if(!canAcceptInstruction()) {
 		//	System.out.println("stalled");
@@ -27,14 +28,14 @@ public class DecodeStage implements IPipelineStage {
 		//}
 
 		if(next == null) {
-			System.out.println("skip");
+			ACASim.dbgLog("skip");
 			return;
 		}
 
 		curr = next;
 		next = null;
 
-		System.out.println("new instruction " + String.format("0x%08X", curr.getRawOpcode()));
+		ACASim.dbgLog("new instruction " + String.format("0x%08X", curr.getRawOpcode()));
 
 		int opcRaw = (curr.getRawOpcode() & MSK_OPC) >> 24;
 		int op1Raw = (curr.getRawOpcode() & MSK_OP1) >> 16;
@@ -52,7 +53,7 @@ public class DecodeStage implements IPipelineStage {
 
 		decoded.decode();
 
-		System.out.println("Decoded: " + opc.toString() + " " + op1Raw + " " + op2Raw + " " + op3Raw);
+		ACASim.dbgLog("Decoded: " + opc.toString() + " " + op1Raw + " " + op2Raw + " " + op3Raw);
 
 		curr = decoded;
 		old = curr;

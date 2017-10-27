@@ -11,15 +11,15 @@ public class ACASim {
 
 	private static ACASim inst;
 
+	private static boolean debug = false;
 	private static boolean useGUI = true;
 
 	private static String filename = "prog/test.hex";
 	private CPUView guiInst = null;
 
-	// this will break code relying on branch delay slots!
+	// turning this off will break code relying on branch delay slots!
 	private boolean pipelined = true;
 
-	//private Clock clock;
 	private Thread simThread = null;
 	private CPUMemory state;
 	public int clockTicks = 0;
@@ -33,7 +33,7 @@ public class ACASim {
 
 	public static void main(String[] args) {
 		if(args.length == 0) {
-			System.out.println("Usage: sim [filename] [gui/nogui]");
+			System.out.println("Usage: sim [filename] [gui|nogui]");
 			return;
 		}
 
@@ -148,7 +148,7 @@ public class ACASim {
 
 			if(!run) break;
 
-			System.out.println("Tick: " + elem.toString());
+			ACASim.dbgLog("Tick: " + elem.toString());
 
 			elem.tick();
 
@@ -192,7 +192,7 @@ public class ACASim {
 
 		IPipelineStage elem = pipeline.get(pipelineStage.val());
 
-		System.out.println("Tick: " + elem.toString() + " Stage: " + pipelineStage);
+		ACASim.dbgLog("Tick: " + elem.toString() + " Stage: " + pipelineStage);
 
 		if(pipelineStage != Stage.FETCH) {
 			IPipelineStage prev = pipeline.get(pipelineStage.val() - 1);
@@ -255,7 +255,7 @@ public class ACASim {
 						}
 					}
 
-					System.out.println("Clock cycles: " + clockTicks);
+					ACASim.dbgLog("Clock cycles: " + clockTicks);
 
 					try {
 						if(doStep) {
@@ -268,7 +268,7 @@ public class ACASim {
 							if(run) {
 								if(clockSleepMs == 0) {
 									if(useGUI) {
-										Thread.sleep(10); // yield for GUI
+										Thread.sleep(5); // yield for GUI
 									}
 								} else {
 									Thread.sleep(clockSleepMs);
@@ -292,13 +292,25 @@ public class ACASim {
 
 	public void halt() {
 		run = false;
-		System.err.println("Halting");
+		System.out.println("Halting at " + clockTicks + " clock cycles.");
+		
 		printRegisters();
+
+		if(!useGUI) {
+			System.exit(0);
+		}
 	}
 
 	public void printRegisters() {
+		System.out.println("Register dump:");
 		for(int r : mem().REG) {
 			System.out.println(String.format("0x%08X", r));
+		}
+	}
+
+	public static void dbgLog(String str) {
+		if(debug) {
+			System.out.println(str);
 		}
 	}
 

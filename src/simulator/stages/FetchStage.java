@@ -13,17 +13,17 @@ public class FetchStage implements IPipelineStage {
 
 	@Override
 	public void tick() {
-		System.out.println("FETCH");
+		ACASim.dbgLog("FETCH");
 
 		if(!canAcceptInstruction()) {
-			System.out.println("stalled");
+			ACASim.dbgLog("stalled");
 			return;
 		}
 		
 		CPUMemory state = ACASim.getInstance().mem();
 		int currOpcode = state.fetchInstrOpcode(state.PC);
 
-		System.out.println("new instruction " + String.format("0x%08X", currOpcode));
+		ACASim.dbgLog("new instruction " + String.format("0x%08X", currOpcode));
 		
 		curr = new UnknownInstruction(currOpcode);
 		curr.setAddress(state.PC);

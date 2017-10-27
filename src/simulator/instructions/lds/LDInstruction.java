@@ -1,5 +1,6 @@
 package simulator.instructions.lds;
 
+import simulator.core.ACASim;
 import simulator.instructions.Instruction;
 import simulator.instructions.Opcode;
 
@@ -16,7 +17,7 @@ public class LDInstruction extends Instruction {
 			int rdest = super.cpu.mem().REG[dest];
 			super.cpu.mem().DMEM[rdest] = super.cpu.mem().REG[super.op1];
 			
-			System.out.println("Set DMEM[" + rdest + "] to " + super.cpu.mem().REG[super.op1]);
+			ACASim.dbgLog("Set DMEM[" + rdest + "] to " + super.cpu.mem().REG[super.op1]);
 			
 			super.result = 0;
 		}

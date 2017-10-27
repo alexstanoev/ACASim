@@ -1,5 +1,6 @@
 package simulator.stages;
 
+import simulator.core.ACASim;
 import simulator.instructions.Instruction;
 
 public class WritebackStage implements IPipelineStage {
@@ -10,7 +11,7 @@ public class WritebackStage implements IPipelineStage {
 
 	@Override
 	public void tick() {
-		System.out.println("WRITEBACK");
+		ACASim.dbgLog("WRITEBACK");
 
 		//if(!canAcceptInstruction()) {
 		//	System.out.println("stalled");
@@ -18,7 +19,7 @@ public class WritebackStage implements IPipelineStage {
 		//}
 		
 		if(next == null) {
-			System.out.println("skip");
+			ACASim.dbgLog("skip");
 			return;
 		}
 		

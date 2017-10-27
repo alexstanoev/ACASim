@@ -1,5 +1,6 @@
 package simulator.instructions.branch;
 
+import simulator.core.ACASim;
 import simulator.instructions.Instruction;
 import simulator.instructions.Opcode;
 
@@ -14,7 +15,7 @@ public class JIInstruction extends Instruction {
 	@Override
 	public void execute() {
 		if(super.cyclesPassed()) {
-			System.out.println("PC " + super.cpu.mem().PC + " -> " + super.dest);
+			ACASim.dbgLog("PC " + super.cpu.mem().PC + " -> " + super.dest);
 			super.cpu.mem().PC = super.dest;
 			
 			// release dummy result (TODO better way)

@@ -48,7 +48,7 @@ public abstract class Instruction {
 	}
 	
 	public void _writeBack() {
-		System.out.println("Write to R" + dest + " - " + result);
+		ACASim.dbgLog("Write to R" + dest + " - " + result);
 		cpu.mem().REG[dest] = result;
 	}
 	

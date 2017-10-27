@@ -1,5 +1,6 @@
 package simulator.stages;
 
+import simulator.core.ACASim;
 import simulator.instructions.Instruction;
 
 public class ExecuteStage implements IPipelineStage {
@@ -10,18 +11,18 @@ public class ExecuteStage implements IPipelineStage {
 
 	@Override
 	public void tick() {
-		System.out.println("EXECUTE");
+		ACASim.dbgLog("EXECUTE");
 
 		if(next != null) {
 			curr = next;
 			next = null;
 			old = curr;
 			
-			System.out.println("new instruction " + String.format("0x%08X", curr.getRawOpcode()));
+			ACASim.dbgLog("new instruction " + String.format("0x%08X", curr.getRawOpcode()));
 		}
 
 		if(curr == null) {
-			System.out.println("exec nop");
+			ACASim.dbgLog("exec nop");
 			return;
 		}
 		
@@ -45,7 +46,7 @@ public class ExecuteStage implements IPipelineStage {
 	@Override
 	public boolean isResultAvailable() {
 		if(curr != null) {
-			System.out.println("avail: " + curr.isResultAvailable());
+			ACASim.dbgLog("avail: " + curr.isResultAvailable());
 			return curr.isResultAvailable();
 		}
 		
