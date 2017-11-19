@@ -33,6 +33,11 @@ public class ExecutionUnitStage implements IPipelineStage {
 		}
 		
 		curr.execute();
+		
+		if(curr.isResultAvailable()) {
+			ACASim.dbgLog("tossing out " + curr);
+			curr = null;
+		}
 	}
 
 	@Override

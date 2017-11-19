@@ -19,6 +19,9 @@ public abstract class Instruction implements IStageTransaction {
 	protected int srcreg1 = -1;
 	protected int srcreg2 = -1;
 	protected int destreg = -1; // destination register
+	
+	protected int regval1 = -1;
+	protected int regval2 = -1;
 
 	protected Integer result = null; // temporary result (from Execute stage), written to dest in WriteBack stage
 	protected int clockCycles; // clock cycles before the result is released
@@ -64,6 +67,12 @@ public abstract class Instruction implements IStageTransaction {
 	public boolean operandsAvailable() {
 		boolean avail = true;
 
+		// TODO is this correct?
+		// special case XOR R1 R1 R1
+		if(opcode == Opcode.XOR && srcreg1 == destreg && srcreg2 == destreg) {
+			return true;
+		}
+		
 		if(srcreg1 != -1) {
 			avail = avail && cpu.mem().SCOREBOARD[srcreg1];
 		}
@@ -77,6 +86,18 @@ public abstract class Instruction implements IStageTransaction {
 		return avail;
 	}
 
+	public void fetchOperands() {
+		ACASim.dbgLog("Fetching operands " + srcreg1 + " " + srcreg2);
+		
+		if(srcreg1 != -1) {
+			this.regval1 = cpu.mem().REG[srcreg1];
+		}
+		
+		if(srcreg2 != -1) {
+			this.regval2 = cpu.mem().REG[srcreg2];
+		}
+	}
+	
 	public void _writeBack() {
 		if(destreg == -1) {
 			throw new IllegalStateException("Attempted to write back instruction that does not set destreg");
@@ -90,7 +111,7 @@ public abstract class Instruction implements IStageTransaction {
 	public boolean isResultAvailable() {
 		return result != null && currCycles == clockCycles;
 	}
-
+	
 	protected boolean cyclesPassed() {
 		currCycles++;
 

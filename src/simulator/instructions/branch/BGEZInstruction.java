@@ -15,7 +15,7 @@ public class BGEZInstruction extends Instruction {
 	@Override
 	public void execute() {
 		if(super.cyclesPassed()) {
-			if(super.cpu.mem().REG[super.srcreg1] > 0) {
+			if(super.regval1 > 0) {
 				super.cpu.mem().PC = super.op2;
 			}
 		}

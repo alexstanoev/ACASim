@@ -14,8 +14,7 @@ public class STInstruction extends Instruction {
 	@Override
 	public void execute() {
 		if(super.cyclesPassed()) {
-			int rdest = super.cpu.mem().REG[super.srcreg1];
-			super.result = super.cpu.mem().DMEM[rdest];
+			super.result = super.cpu.mem().DMEM[super.regval1];
 		}
 	}
 

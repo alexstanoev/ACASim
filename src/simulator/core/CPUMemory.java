@@ -7,6 +7,7 @@ public class CPUMemory {
 
 	public static final int FETCH_WIDTH = 2;
 	public static final int RS_WIDTH = 4;
+	public static final int RB_SIZE = 16;
 
 	public static final int MEMSIZE = 128;
 	public static final int NUMREGS = 10;

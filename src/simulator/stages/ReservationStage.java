@@ -29,18 +29,20 @@ public class ReservationStage implements IPipelineStage {
 			for(ExecutionUnitStage eus : ACASim.getInstance().executionUnits.get(eu)) {
 				if(eus.canAcceptInstruction()) {
 					ACASim.dbgLog("Free eu: " + eu + " " + eus);
-					
+
 					for(int i = 0; i < instructionQueue.size(); i++) {
 						Instruction next = instructionQueue.get(i);
-						
+
 						ACASim.dbgLog("Instr: " + next.getOpcode() + " " + next.getEU());
-						
+
 						if(eus.getType() == next.getEU() && next.operandsAvailable()) {
+							next.fetchOperands();
+
 							eus.acceptTransaction(next);
 							instructionQueue.remove(i);
-							
+
 							ACASim.dbgLog("Pass " + next.getOpcode() + " to " + eus);
-							
+
 							break;
 						}
 					}
@@ -99,7 +101,7 @@ public class ReservationStage implements IPipelineStage {
 			instructionQueue.add(enc);
 
 			ACASim.dbgLog("Accept: " + enc.getOpcode());
-			
+
 			if(instructionQueue.size() > CPUMemory.RS_WIDTH) {
 				throw new IllegalStateException("Overfull instruction queue");
 			}

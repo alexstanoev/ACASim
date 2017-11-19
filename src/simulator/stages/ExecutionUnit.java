@@ -3,7 +3,7 @@ package simulator.stages;
 public enum ExecutionUnit {
 
 	UNKNOWN(0),
-	ALU(1),
+	ALU(2),
 	BRANCH(1),
 	LDS(1);
 

@@ -14,12 +14,13 @@ public class ADDIInstruction extends Instruction {
 	@Override
 	public void execute() {
 		if(super.cyclesPassed()) {
-			super.result = super.cpu.mem().REG[super.op1] + super.op2;
+			super.result = super.regval1 + super.op2;
 		}
 	}
 
 	@Override
 	public void decode() {
+		super.srcreg1 = super.op1;
 		super.destreg = super.op3;
 	}
 

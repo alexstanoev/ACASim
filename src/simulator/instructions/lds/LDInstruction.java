@@ -15,10 +15,9 @@ public class LDInstruction extends Instruction {
 	@Override
 	public void execute() {
 		if(super.cyclesPassed()) {
-			int rdest = super.cpu.mem().REG[srcreg2];
-			super.cpu.mem().DMEM[rdest] = super.cpu.mem().REG[super.srcreg1];
+			super.cpu.mem().DMEM[super.regval2] = super.regval1;
 			
-			ACASim.dbgLog("Set DMEM[" + rdest + "] to " + super.cpu.mem().REG[super.srcreg1]);
+			ACASim.dbgLog("Set DMEM[" + super.regval2 + "] to " + super.regval1);
 			
 			super.result = 0;
 		}

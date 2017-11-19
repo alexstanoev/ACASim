@@ -5,14 +5,26 @@ import simulator.instructions.Instruction;
 
 public class WritebackStage implements IPipelineStage {
 
-	private Instruction old = null;
-	private Instruction curr = null;
-	private Instruction next = null;
+	//private Instruction old = null;
+	//private Instruction curr = null;
+	//private Instruction next = null;
 
 	@Override
 	public void tick() {
 		ACASim.dbgLog("WRITEBACK");
 
+		if(ACASim.getInstance().reorderBuffer.size() == 0) {
+			return;
+		}
+
+		if(ACASim.getInstance().reorderBuffer.peekLast().isResultAvailable()) {
+			ACASim.getInstance().reorderBuffer.removeLast().writeBack();
+			ACASim.dbgLog("Retiring instruction");
+		} else {
+			ACASim.dbgLog("Waiting on " + ACASim.getInstance().reorderBuffer.peekLast() + " cycles: " + ACASim.getInstance().reorderBuffer.peekLast().getCyclesRemaining());
+		}
+
+		/*
 		for(ExecutionUnit eu : ACASim.getInstance().executionUnits.keySet()) {
 			for(ExecutionUnitStage eus : ACASim.getInstance().executionUnits.get(eu)) {
 				if(eus.isResultAvailable()) {
@@ -21,27 +33,28 @@ public class WritebackStage implements IPipelineStage {
 				}
 			}
 		}
-		
-			/*
+		 */
+
+		/*
 		//if(!canAcceptInstruction()) {
 		//	System.out.println("stalled");
 		//	return;
 		//}
-		
+
 		if(next == null) {
 			ACASim.dbgLog("skip");
 			return;
 		}
-		
+
 		curr = next;
 		next = null;
 
 		curr.writeBack();
-		
+
 		old = curr;
-		
+
 		curr = null;
-		*/
+		 */
 	}
 
 	@Override
@@ -52,9 +65,9 @@ public class WritebackStage implements IPipelineStage {
 		} else {
 			throw new IllegalStateException("Attempted to pass invalid transaction to WriteBack");
 		}
-		*/
+		 */
 	}
-	
+
 	@Override
 	public void acceptNextInstruction(Instruction instr) {
 		//next = instr;
@@ -71,7 +84,7 @@ public class WritebackStage implements IPipelineStage {
 		return true;
 		//return curr != null;
 	}
-	
+
 	@Override
 	public IStageTransaction getResult() {
 		return null;
@@ -79,15 +92,15 @@ public class WritebackStage implements IPipelineStage {
 		//curr = null;
 		//return res;
 	}
-	
+
 	@Override
 	public IStageTransaction getCurrentTransaction() {
-		return old;
+		return null;
 	}
 
 	@Override
 	public void clearOldInstruction() {
-		old = null;
+		//old = null;
 	}
-	
+
 }

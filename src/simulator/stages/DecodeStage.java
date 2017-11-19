@@ -1,6 +1,7 @@
 package simulator.stages;
 
 import simulator.core.ACASim;
+import simulator.core.CPUMemory;
 import simulator.instructions.Instruction;
 import simulator.instructions.InstructionBundle;
 import simulator.instructions.Opcode;
@@ -64,6 +65,7 @@ public class DecodeStage implements IPipelineStage {
 			ACASim.dbgLog("Decoded: " + opc.toString() + " " + op1Raw + " " + op2Raw + " " + op3Raw);
 
 			res.pushInstruction(decoded);
+			ACASim.getInstance().reorderBuffer.push(decoded);
 		}
 
 		curr = res;
@@ -78,7 +80,7 @@ public class DecodeStage implements IPipelineStage {
 
 	@Override
 	public boolean canAcceptInstruction() {
-		return curr == null && next == null;
+		return curr == null && next == null && ACASim.getInstance().reorderBuffer.size() + CPUMemory.FETCH_WIDTH < CPUMemory.RB_SIZE;
 	}
 
 	@Override
