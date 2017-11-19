@@ -1,6 +1,7 @@
 package simulator.stages;
 
 import simulator.core.ACASim;
+import simulator.core.CPUMemory;
 import simulator.instructions.Instruction;
 
 public class WritebackStage implements IPipelineStage {
@@ -13,15 +14,17 @@ public class WritebackStage implements IPipelineStage {
 	public void tick() {
 		ACASim.dbgLog("WRITEBACK");
 
-		if(ACASim.getInstance().reorderBuffer.size() == 0) {
-			return;
-		}
+		for(int i = 0; i < CPUMemory.FETCH_WIDTH; i++) {
+			if(ACASim.getInstance().reorderBuffer.size() == 0) {
+				return;
+			}
 
-		if(ACASim.getInstance().reorderBuffer.peekLast().isResultAvailable()) {
-			ACASim.getInstance().reorderBuffer.removeLast().writeBack();
-			ACASim.dbgLog("Retiring instruction");
-		} else {
-			ACASim.dbgLog("Waiting on " + ACASim.getInstance().reorderBuffer.peekLast() + " cycles: " + ACASim.getInstance().reorderBuffer.peekLast().getCyclesRemaining());
+			if(ACASim.getInstance().reorderBuffer.peekLast().isResultAvailable()) {
+				ACASim.getInstance().reorderBuffer.removeLast().writeBack();
+				ACASim.dbgLog("Retiring instruction");
+			} else {
+				ACASim.dbgLog("Waiting on " + ACASim.getInstance().reorderBuffer.peekLast() + " cycles: " + ACASim.getInstance().reorderBuffer.peekLast().getCyclesRemaining());
+			}
 		}
 
 		/*
