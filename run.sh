@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo Compiling
-/home/fe14/as14622/linux/dist/maven/bin/mvn compile
+/home/fe14/as14622/linux/dist/maven/bin/mvn package
 
 echo Assembling
 #/home/fe14/as14622/linux/dist/maven/bin/mvn exec:java@asm -DasmIn=prog/test1.aca -DasmOut=prog/test1.hex

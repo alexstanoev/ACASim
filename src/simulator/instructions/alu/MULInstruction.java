@@ -2,11 +2,12 @@ package simulator.instructions.alu;
 
 import simulator.instructions.Instruction;
 import simulator.instructions.Opcode;
+import simulator.stages.ExecutionUnit;
 
 public class MULInstruction extends Instruction {
 
 	public MULInstruction() {
-		super(Opcode.MUL.hex(), 1);
+		super(Opcode.MUL.hex(), 1, ExecutionUnit.ALU);
 	}
 
 	// MUL R1 R2 R3 -> R3 = R1 * R2

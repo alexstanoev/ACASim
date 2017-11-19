@@ -2,13 +2,14 @@ package simulator.stages;
 
 import simulator.core.ACASim;
 import simulator.instructions.Instruction;
+import simulator.instructions.InstructionBundle;
 import simulator.instructions.Opcode;
 
 public class DecodeStage implements IPipelineStage {
 
-	private Instruction old = null;
-	private Instruction curr = null;
-	private Instruction next = null;
+	private InstructionBundle old = null;
+	private InstructionBundle curr = null;
+	private InstructionBundle next = null;
 
 	// [--OP--][--O1--][--O2--][--O3--] 4 x 8 bits operands
 	// [------------------------------] 32 bit instruction
@@ -35,33 +36,42 @@ public class DecodeStage implements IPipelineStage {
 		curr = next;
 		next = null;
 
-		ACASim.dbgLog("new instruction " + String.format("0x%08X", curr.getRawOpcode()));
+		InstructionBundle res = new InstructionBundle();
 
-		int opcRaw = (curr.getRawOpcode() & MSK_OPC) >> 24;
-		int op1Raw = (curr.getRawOpcode() & MSK_OP1) >> 16;
-		int op2Raw = (curr.getRawOpcode() & MSK_OP2) >> 8;
-		int op3Raw = curr.getRawOpcode() & MSK_OP3;
+		while(curr.hasInstructions()) {
+			Instruction enc = curr.fetchInstruction();
 
-		Opcode opc = Opcode.fromHex(opcRaw);
+			ACASim.dbgLog("new instruction " + String.format("0x%08X", enc.getRawOpcode()));
 
-		Instruction decoded = opc.instantiate();
+			int opcRaw = (enc.getRawOpcode() & MSK_OPC) >> 24;
+			int op1Raw = (enc.getRawOpcode() & MSK_OP1) >> 16;
+			int op2Raw = (enc.getRawOpcode() & MSK_OP2) >> 8;
+			int op3Raw = enc.getRawOpcode() & MSK_OP3;
 
-		decoded.setOpcode(opc);
-		decoded.setRawOpcode(curr.getRawOpcode());
-		decoded.setAddress(curr.getAddress());
-		decoded.setOperands(op1Raw, op2Raw, op3Raw);
+			Opcode opc = Opcode.fromHex(opcRaw);
 
-		decoded.decode();
+			Instruction decoded = opc.instantiate();
 
-		ACASim.dbgLog("Decoded: " + opc.toString() + " " + op1Raw + " " + op2Raw + " " + op3Raw);
+			decoded.setOpcode(opc);
+			decoded.setRawOpcode(enc.getRawOpcode());
+			decoded.setAddress(enc.getAddress());
+			decoded.setOperands(op1Raw, op2Raw, op3Raw);
 
-		curr = decoded;
+			decoded.decode();
+
+			ACASim.dbgLog("Decoded: " + opc.toString() + " " + op1Raw + " " + op2Raw + " " + op3Raw);
+
+			res.pushInstruction(decoded);
+		}
+
+		curr = res;
 		old = curr;
+
 	}
 
 	@Override
 	public void acceptNextInstruction(Instruction instr) {
-		next = instr;
+		throw new IllegalStateException("Attempted to pass single instruction to decode stage");
 	}
 
 	@Override
@@ -75,13 +85,13 @@ public class DecodeStage implements IPipelineStage {
 	}
 
 	@Override
-	public Instruction getCurrentInstruction() {
+	public IStageTransaction getCurrentTransaction() {
 		return old;
 	}
 
 	@Override
-	public Instruction getResult() {
-		Instruction res = curr;
+	public IStageTransaction getResult() {
+		InstructionBundle res = curr;
 		curr = null;
 		return res;
 	}
@@ -91,6 +101,15 @@ public class DecodeStage implements IPipelineStage {
 		if(curr != null) return;
 
 		old = null;
+	}
+
+	@Override
+	public void acceptTransaction(IStageTransaction tr) {
+		if(!(tr instanceof InstructionBundle)) {
+			throw new IllegalStateException("Attempted to pass non-bundle to decode stage");
+		}
+
+		next = (InstructionBundle) tr;
 	}
 
 }

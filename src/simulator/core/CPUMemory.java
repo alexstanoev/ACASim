@@ -4,6 +4,9 @@ import java.util.ArrayList;
 
 public class CPUMemory {
 
+	public static final int FETCH_WIDTH = 1;
+	public static final int RS_WIDTH = 1;
+	
 	public static final int MEMSIZE = 128;
 	public static final int NUMREGS = 10;
 	public int[] DMEM = new int[MEMSIZE];

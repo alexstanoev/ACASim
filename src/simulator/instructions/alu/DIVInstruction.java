@@ -2,11 +2,12 @@ package simulator.instructions.alu;
 
 import simulator.instructions.Instruction;
 import simulator.instructions.Opcode;
+import simulator.stages.ExecutionUnit;
 
 public class DIVInstruction extends Instruction {
 
 	public DIVInstruction() {
-		super(Opcode.DIV.hex(), 5);
+		super(Opcode.DIV.hex(), 5, ExecutionUnit.ALU);
 	}
 
 	// DIV R1 R2 R3 -> R3 = R1 / R2

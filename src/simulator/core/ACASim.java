@@ -1,17 +1,21 @@
 package simulator.core;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.TreeMap;
 
 import javax.swing.SwingUtilities;
 
 import simulator.gui.CPUView;
+import simulator.instructions.Instruction;
 import simulator.stages.*;
 
 public class ACASim {
 
 	private static ACASim inst;
 
-	private static boolean debug = false;
+	private static boolean debug = true;
 	private static boolean useGUI = true;
 
 	private static String filename = "prog/test.hex";
@@ -30,6 +34,9 @@ public class ACASim {
 
 	public LinkedList<IPipelineStage> pipeline = new LinkedList<IPipelineStage>();
 	public Stage pipelineStage = Stage.FETCH;
+
+	public HashMap<ExecutionUnit, ArrayList<ExecutionUnitStage>> executionUnits = new HashMap<ExecutionUnit, ArrayList<ExecutionUnitStage>>();
+	public TreeMap<Integer, Instruction> reorderBuffer = new TreeMap<Integer, Instruction>();
 
 	public static void main(String[] args) {
 		if(args.length == 0) {
@@ -71,7 +78,7 @@ public class ACASim {
 		state = new CPUMemory();
 
 		instantiatePipeline();
-		//clock = new Clock();
+		instantiateExecutionUnits();
 
 		if(useGUI && guiInst == null) {
 			guiInst = new CPUView();
@@ -93,10 +100,23 @@ public class ACASim {
 		}
 	}
 
+	private void instantiateExecutionUnits() {
+		executionUnits.clear();
+		for(ExecutionUnit type : ExecutionUnit.values()) {
+			if(type.num() > 0) {
+				executionUnits.put(type, new ArrayList<ExecutionUnitStage>());
+				for(int i = 0; i < type.num(); i++) {
+					executionUnits.get(type).add(new ExecutionUnitStage(type));
+				}
+			}
+		}
+	}
+
 	private void instantiatePipeline() {
 		pipeline.clear();
 		pipeline.add(new FetchStage());
 		pipeline.add(new DecodeStage());
+		pipeline.add(new ReservationStage());
 		pipeline.add(new ExecuteStage());
 		pipeline.add(new WritebackStage());
 	}
@@ -143,7 +163,7 @@ public class ACASim {
 		}
 
 		IPipelineStage next = null;
-		for(int i = 3; i >= 0; i--) {
+		for(int i = pipeline.size() - 1; i >= 0; i--) {
 			IPipelineStage elem = pipeline.get(i);
 
 			if(!run) break;
@@ -156,7 +176,7 @@ public class ACASim {
 
 				if(next.canAcceptInstruction()) {
 					if(elem.isResultAvailable()) {
-						next.acceptNextInstruction(elem.getResult());
+						next.acceptTransaction(elem.getResult());
 						//System.out.println("passing instruction");
 					} else {
 						//elem.acceptNextInstruction(new NOPInstruction());
@@ -199,7 +219,7 @@ public class ACASim {
 
 			if(elem.canAcceptInstruction()) {
 				if(prev.isResultAvailable()) {
-					elem.acceptNextInstruction(prev.getResult());
+					elem.acceptTransaction(prev.getResult());
 					//System.out.println("passing instruction");
 				} else {
 					//elem.acceptNextInstruction(new NOPInstruction());
@@ -293,7 +313,7 @@ public class ACASim {
 	public void halt() {
 		run = false;
 		System.out.println("Halting at " + clockTicks + " clock cycles.");
-		
+
 		printRegisters();
 
 		if(!useGUI) {
@@ -310,7 +330,7 @@ public class ACASim {
 
 	public static void dbgLog(String str) {
 		if(debug) {
-			System.out.println(str);
+			System.out.println(new Exception().getStackTrace()[1].getClassName() + ": " + str);
 		}
 	}
 

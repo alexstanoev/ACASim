@@ -2,11 +2,12 @@ package simulator.instructions.branch;
 
 import simulator.instructions.Instruction;
 import simulator.instructions.Opcode;
+import simulator.stages.ExecutionUnit;
 
 public class BLTZInstruction extends Instruction {
 
 	public BLTZInstruction() {
-		super(Opcode.BLTZ.hex(), 1);
+		super(Opcode.BLTZ.hex(), 1, ExecutionUnit.BRANCH);
 	}
 
 	// BGEZ R1 R2 -> PC = (R1 < 0) ? R2 : PC

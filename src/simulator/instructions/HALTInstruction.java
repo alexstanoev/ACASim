@@ -1,9 +1,11 @@
 package simulator.instructions;
 
+import simulator.stages.ExecutionUnit;
+
 public class HALTInstruction extends Instruction {
 
 	public HALTInstruction() {
-		super(Opcode.HALT.hex(), 1);
+		super(Opcode.HALT.hex(), 1, ExecutionUnit.ALU);
 	}
 
 	// (special case) halt the CPU

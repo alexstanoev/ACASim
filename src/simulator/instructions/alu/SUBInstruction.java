@@ -2,11 +2,12 @@ package simulator.instructions.alu;
 
 import simulator.instructions.Instruction;
 import simulator.instructions.Opcode;
+import simulator.stages.ExecutionUnit;
 
 public class SUBInstruction extends Instruction {
 
 	public SUBInstruction() {
-		super(Opcode.SUB.hex(), 1);
+		super(Opcode.SUB.hex(), 1, ExecutionUnit.ALU);
 	}
 
 	// SUB R1 R2 R3 -> R3 = R1 - R2

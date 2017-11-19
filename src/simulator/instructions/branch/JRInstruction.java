@@ -2,11 +2,12 @@ package simulator.instructions.branch;
 
 import simulator.instructions.Instruction;
 import simulator.instructions.Opcode;
+import simulator.stages.ExecutionUnit;
 
 public class JRInstruction extends Instruction {
 
 	public JRInstruction() {
-		super(Opcode.JR.hex(), 1);
+		super(Opcode.JR.hex(), 1, ExecutionUnit.BRANCH);
 	}
 
 	// JR OP1 -> PC += REG[OP1]

@@ -2,11 +2,12 @@ package simulator.instructions.alu;
 
 import simulator.instructions.Instruction;
 import simulator.instructions.Opcode;
+import simulator.stages.ExecutionUnit;
 
 public class ADDIInstruction extends Instruction {
 
 	public ADDIInstruction() {
-		super(Opcode.ADDI.hex(), 1);
+		super(Opcode.ADDI.hex(), 1, ExecutionUnit.ALU);
 	}
 
 	// ADDI R1 I1 R3 -> R3 = R1 + I1

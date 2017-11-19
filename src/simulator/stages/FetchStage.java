@@ -3,12 +3,13 @@ package simulator.stages;
 import simulator.core.ACASim;
 import simulator.core.CPUMemory;
 import simulator.instructions.Instruction;
+import simulator.instructions.InstructionBundle;
 import simulator.instructions.UnknownInstruction;
 
 public class FetchStage implements IPipelineStage {
 
-	private Instruction old = null;
-	private Instruction curr = null;
+	private InstructionBundle old = null;
+	private InstructionBundle curr = null;
 	//private Instruction next = null;
 
 	@Override
@@ -19,23 +20,35 @@ public class FetchStage implements IPipelineStage {
 			ACASim.dbgLog("stalled");
 			return;
 		}
-		
+
 		CPUMemory state = ACASim.getInstance().mem();
-		int currOpcode = state.fetchInstrOpcode(state.PC);
 
-		ACASim.dbgLog("new instruction " + String.format("0x%08X", currOpcode));
-		
-		curr = new UnknownInstruction(currOpcode);
-		curr.setAddress(state.PC);
+		curr = new InstructionBundle();
 
-		state.PC++;
-		
+		for(int i = 0; i < CPUMemory.FETCH_WIDTH; i++) {
+			int currOpcode = state.fetchInstrOpcode(state.PC);
+
+			ACASim.dbgLog("new instruction " + String.format("0x%08X", currOpcode));
+
+			UnknownInstruction tmp = new UnknownInstruction(currOpcode);
+			tmp.setAddress(state.PC);
+			
+			curr.pushInstruction(tmp);
+
+			state.PC++;
+		}
+
 		old = curr;
 	}
 
 	@Override
+	public void acceptTransaction(IStageTransaction tr) {
+		throw new IllegalStateException("Attempted to pass transaction to fetch stage");
+	}
+
+	@Override
 	public void acceptNextInstruction(Instruction instr) {
-		return;
+		throw new IllegalStateException("Attempted to pass instruction to fetch stage");
 	}
 
 	@Override
@@ -47,23 +60,23 @@ public class FetchStage implements IPipelineStage {
 	public boolean isResultAvailable() {
 		return curr != null;
 	}
-	
+
 	@Override
-	public Instruction getResult() {
-		Instruction res = curr;
+	public IStageTransaction getResult() {
+		InstructionBundle res = curr;
 		curr = null;
 		return res;
 	}
 
 	@Override
-	public Instruction getCurrentInstruction() {
+	public IStageTransaction getCurrentTransaction() {
 		return old;
 	}
 
 	@Override
 	public void clearOldInstruction() {
 		if(curr != null) return;
-		
+
 		old = null;
 	}
 

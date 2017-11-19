@@ -1,9 +1,11 @@
 package simulator.instructions;
 
+import simulator.stages.ExecutionUnit;
+
 public class NOPInstruction extends Instruction {
 
 	public NOPInstruction() {
-		super(Opcode.NOP.hex(), 1);
+		super(Opcode.NOP.hex(), 1, ExecutionUnit.ALU);
 	}
 
 	// do nothing

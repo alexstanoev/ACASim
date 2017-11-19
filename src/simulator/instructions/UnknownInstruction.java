@@ -1,9 +1,11 @@
 package simulator.instructions;
 
+import simulator.stages.ExecutionUnit;
+
 public class UnknownInstruction extends Instruction {
 
 	public UnknownInstruction(int rawForm) {
-		super(rawForm, 1);
+		super(rawForm, 1, ExecutionUnit.UNKNOWN);
 	}
 	
 	@Override

@@ -236,8 +236,16 @@ public class CPUView extends JFrame {
 		IPipelineStage writeBackStage = ACASim.getInstance().pipeline.get(3);
 
 		String fetchStr = "empty";
-		if(fetchStage.getCurrentInstruction() != null) {
-			Instruction instr = fetchStage.getCurrentInstruction();
+		String decodeStr = "empty";
+		String executeStr = "empty";
+		String writebackStr = "empty";
+		
+		// TODO FIX: check if the transaction is an instruction or a bundle and process individual instructions in it
+		
+		/*
+		
+		if(fetchStage.getCurrentTransaction() != null) {
+			Instruction instr = fetchStage.getCurrentTransaction();
 			imemStages.put(instr.getAddress(), "FETCH");
 
 			int opcRaw = (instr.getRawOpcode() & MSK_OPC) >> 24;
@@ -250,9 +258,9 @@ public class CPUView extends JFrame {
 			fetchStr = opc + " " + op1Raw + " " + op2Raw + " " + op3Raw;
 		}
 
-		String decodeStr = "empty";
-		if(decodeStage.getCurrentInstruction() != null) {
-			Instruction instr = decodeStage.getCurrentInstruction();
+		
+		if(decodeStage.getCurrentTransaction() != null) {
+			Instruction instr = decodeStage.getCurrentTransaction();
 			imemStages.put(instr.getAddress(), "DECODE");
 
 			int op1Raw = (instr.getRawOpcode() & MSK_OP1) >> 16;
@@ -262,10 +270,10 @@ public class CPUView extends JFrame {
 			decodeStr = instr.getOpcode() + " " + op1Raw + " " + op2Raw + " " + op3Raw;
 		}
 
-		String executeStr = "empty";
-		if(executeStage.getCurrentInstruction() != null) {
-			Instruction instr = executeStage.getCurrentInstruction();
-			imemStages.put(executeStage.getCurrentInstruction().getAddress(), "EXECUTE");
+		
+		if(executeStage.getCurrentTransaction() != null) {
+			Instruction instr = executeStage.getCurrentTransaction();
+			imemStages.put(executeStage.getCurrentTransaction().getAddress(), "EXECUTE");
 
 			int op1Raw = (instr.getRawOpcode() & MSK_OP1) >> 16;
 			int op2Raw = (instr.getRawOpcode() & MSK_OP2) >> 8;
@@ -274,10 +282,10 @@ public class CPUView extends JFrame {
 			executeStr = instr.getOpcode() + " " + op1Raw + " " + op2Raw + " " + op3Raw + " (" + instr.getCyclesRemaining() + ")";
 		}
 
-		String writebackStr = "empty";
-		if(writeBackStage.getCurrentInstruction() != null) {
-			Instruction instr = writeBackStage.getCurrentInstruction();
-			imemStages.put(writeBackStage.getCurrentInstruction().getAddress(), "WRITEBACK");
+		
+		if(writeBackStage.getCurrentTransaction() != null) {
+			Instruction instr = writeBackStage.getCurrentTransaction();
+			imemStages.put(writeBackStage.getCurrentTransaction().getAddress(), "WRITEBACK");
 
 			int op1Raw = (instr.getRawOpcode() & MSK_OP1) >> 16;
 			int op2Raw = (instr.getRawOpcode() & MSK_OP2) >> 8;
@@ -285,6 +293,8 @@ public class CPUView extends JFrame {
 
 			writebackStr = instr.getOpcode() + " " + op1Raw + " " + op2Raw + " " + op3Raw;
 		}
+		
+		*/
 
 		listImem.updateUI();
 

@@ -13,6 +13,16 @@ public class WritebackStage implements IPipelineStage {
 	public void tick() {
 		ACASim.dbgLog("WRITEBACK");
 
+		for(ExecutionUnit eu : ACASim.getInstance().executionUnits.keySet()) {
+			for(ExecutionUnitStage eus : ACASim.getInstance().executionUnits.get(eu)) {
+				if(eus.isResultAvailable()) {
+					Instruction result = (Instruction) eus.getResult();
+					result.writeBack();
+				}
+			}
+		}
+		
+			/*
 		//if(!canAcceptInstruction()) {
 		//	System.out.println("stalled");
 		//	return;
@@ -31,32 +41,47 @@ public class WritebackStage implements IPipelineStage {
 		old = curr;
 		
 		curr = null;
+		*/
 	}
 
 	@Override
+	public void acceptTransaction(IStageTransaction tr) {
+		/*
+		if(tr instanceof Instruction) {
+			acceptNextInstruction((Instruction) tr);
+		} else {
+			throw new IllegalStateException("Attempted to pass invalid transaction to WriteBack");
+		}
+		*/
+	}
+	
+	@Override
 	public void acceptNextInstruction(Instruction instr) {
-		next = instr;
+		//next = instr;
 	}
 
 	@Override
 	public boolean canAcceptInstruction() {
-		return curr == null && next == null;
+		return true;
+		//return curr == null && next == null;
 	}
 
 	@Override
 	public boolean isResultAvailable() {
-		return curr != null;
+		return true;
+		//return curr != null;
 	}
 	
 	@Override
-	public Instruction getResult() {
-		Instruction res = curr;
-		curr = null;
-		return res;
+	public IStageTransaction getResult() {
+		return null;
+		//Instruction res = curr;
+		//curr = null;
+		//return res;
 	}
 	
 	@Override
-	public Instruction getCurrentInstruction() {
+	public IStageTransaction getCurrentTransaction() {
 		return old;
 	}
 

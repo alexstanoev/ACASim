@@ -2,11 +2,12 @@ package simulator.instructions.alu;
 
 import simulator.instructions.Instruction;
 import simulator.instructions.Opcode;
+import simulator.stages.ExecutionUnit;
 
 public class XORInstruction extends Instruction {
 
 	public XORInstruction() {
-		super(Opcode.XOR.hex(), 1);
+		super(Opcode.XOR.hex(), 1, ExecutionUnit.ALU);
 	}
 
 	// XOR R1 R2 R3 -> R3 = R1 ^ R2

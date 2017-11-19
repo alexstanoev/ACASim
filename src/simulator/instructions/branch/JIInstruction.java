@@ -3,11 +3,12 @@ package simulator.instructions.branch;
 import simulator.core.ACASim;
 import simulator.instructions.Instruction;
 import simulator.instructions.Opcode;
+import simulator.stages.ExecutionUnit;
 
 public class JIInstruction extends Instruction {
 
 	public JIInstruction() {
-		super(Opcode.JI.hex(), 1);
+		super(Opcode.JI.hex(), 1, ExecutionUnit.BRANCH);
 	}
 
 	// JI I1 -> PC = I1

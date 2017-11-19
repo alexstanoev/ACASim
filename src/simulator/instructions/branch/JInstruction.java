@@ -3,11 +3,12 @@ package simulator.instructions.branch;
 import simulator.core.ACASim;
 import simulator.instructions.Instruction;
 import simulator.instructions.Opcode;
+import simulator.stages.ExecutionUnit;
 
 public class JInstruction extends Instruction {
 
 	public JInstruction() {
-		super(Opcode.J.hex(), 1);
+		super(Opcode.J.hex(), 1, ExecutionUnit.BRANCH);
 	}
 
 	// J OP1 -> PC = REG[OP1]

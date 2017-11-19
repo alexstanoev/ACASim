@@ -2,11 +2,12 @@ package simulator.instructions.alu;
 
 import simulator.instructions.Instruction;
 import simulator.instructions.Opcode;
+import simulator.stages.ExecutionUnit;
 
 public class SHLInstruction extends Instruction {
 
 	public SHLInstruction() {
-		super(Opcode.SHL.hex(), 1);
+		super(Opcode.SHL.hex(), 1, ExecutionUnit.ALU);
 	}
 
 	// SHL R1 R2 R3 -> R3 = R1 << R2

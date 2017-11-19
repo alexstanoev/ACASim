@@ -2,12 +2,13 @@ package simulator.instructions.branch;
 
 import simulator.instructions.Instruction;
 import simulator.instructions.Opcode;
+import simulator.stages.ExecutionUnit;
 
 public class BGEZInstruction extends Instruction {
 
 	// TODO rename to BGZ
 	public BGEZInstruction() {
-		super(Opcode.BGEZ.hex(), 1);
+		super(Opcode.BGEZ.hex(), 1, ExecutionUnit.BRANCH);
 	}
 
 	// BGEZ R1 R2 -> PC = (R1 >= 0) ? R2 : PC

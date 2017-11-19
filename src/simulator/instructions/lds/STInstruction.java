@@ -2,11 +2,12 @@ package simulator.instructions.lds;
 
 import simulator.instructions.Instruction;
 import simulator.instructions.Opcode;
+import simulator.stages.ExecutionUnit;
 
 public class STInstruction extends Instruction {
 
 	public STInstruction() {
-		super(Opcode.ST.hex(), 3);
+		super(Opcode.ST.hex(), 3, ExecutionUnit.LDS);
 	}
 	
 	// ST R1 R2-> R2 = DMEM[R1]

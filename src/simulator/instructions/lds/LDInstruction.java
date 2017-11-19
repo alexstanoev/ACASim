@@ -3,11 +3,12 @@ package simulator.instructions.lds;
 import simulator.core.ACASim;
 import simulator.instructions.Instruction;
 import simulator.instructions.Opcode;
+import simulator.stages.ExecutionUnit;
 
 public class LDInstruction extends Instruction {
 
 	public LDInstruction() {
-		super(Opcode.LD.hex(), 3);
+		super(Opcode.LD.hex(), 3, ExecutionUnit.LDS);
 	}
 	
 	// LD R1 R2-> DMEM[R2] = R1

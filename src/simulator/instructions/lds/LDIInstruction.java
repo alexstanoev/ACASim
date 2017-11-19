@@ -2,11 +2,12 @@ package simulator.instructions.lds;
 
 import simulator.instructions.Instruction;
 import simulator.instructions.Opcode;
+import simulator.stages.ExecutionUnit;
 
 public class LDIInstruction extends Instruction {
 
 	public LDIInstruction() {
-		super(Opcode.LDI.hex(), 3);
+		super(Opcode.LDI.hex(), 3, ExecutionUnit.LDS);
 	}
 	
 	// LDI R1 R2 -> DMEM[R2] = R1

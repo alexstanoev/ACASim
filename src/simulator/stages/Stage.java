@@ -4,8 +4,9 @@ public enum Stage {
 
 	FETCH(0),
 	DECODE(1),
-	EXECUTE(2),
-	WRITEBACK(3);
+	RESERVE(2),
+	EXECUTEALL(3),
+	WRITEBACK(4);
 
 
 	private int _val;
