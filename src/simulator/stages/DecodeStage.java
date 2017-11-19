@@ -59,6 +59,8 @@ public class DecodeStage implements IPipelineStage {
 
 			decoded.decode();
 
+			decoded.scoreboardDestReg();
+			
 			ACASim.dbgLog("Decoded: " + opc.toString() + " " + op1Raw + " " + op2Raw + " " + op3Raw);
 
 			res.pushInstruction(decoded);

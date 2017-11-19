@@ -20,7 +20,7 @@ public class ADDInstruction extends Instruction {
 
 	@Override
 	public void decode() {
-		super.dest = super.op3;
+		super.destreg = super.op3;
 	}
 
 	@Override

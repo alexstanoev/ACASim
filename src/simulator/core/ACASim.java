@@ -36,7 +36,7 @@ public class ACASim {
 	public Stage pipelineStage = Stage.FETCH;
 
 	public HashMap<ExecutionUnit, ArrayList<ExecutionUnitStage>> executionUnits = new HashMap<ExecutionUnit, ArrayList<ExecutionUnitStage>>();
-	public TreeMap<Integer, Instruction> reorderBuffer = new TreeMap<Integer, Instruction>();
+	//public TreeMap<Integer, Instruction> reorderBuffer = new TreeMap<Integer, Instruction>();
 
 	public static void main(String[] args) {
 		if(args.length == 0) {

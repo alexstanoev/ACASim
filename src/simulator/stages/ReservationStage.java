@@ -35,11 +35,13 @@ public class ReservationStage implements IPipelineStage {
 						
 						ACASim.dbgLog("Instr: " + next.getOpcode() + " " + next.getEU());
 						
-						if(eus.getType() == next.getEU()) {
+						if(eus.getType() == next.getEU() && next.operandsAvailable()) {
 							eus.acceptTransaction(next);
 							instructionQueue.remove(i);
 							
 							ACASim.dbgLog("Pass " + next.getOpcode() + " to " + eus);
+							
+							break;
 						}
 					}
 				}

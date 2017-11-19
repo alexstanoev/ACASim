@@ -14,14 +14,15 @@ public class STInstruction extends Instruction {
 	@Override
 	public void execute() {
 		if(super.cyclesPassed()) {
-			int rdest = super.cpu.mem().REG[super.op1];
+			int rdest = super.cpu.mem().REG[super.srcreg1];
 			super.result = super.cpu.mem().DMEM[rdest];
 		}
 	}
 
 	@Override
 	public void decode() {
-		super.dest = super.op2;
+		super.srcreg1 = super.op1;
+		super.destreg = super.op2;
 	}
 
 	@Override

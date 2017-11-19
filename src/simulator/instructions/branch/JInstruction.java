@@ -16,8 +16,8 @@ public class JInstruction extends Instruction {
 	@Override
 	public void execute() {
 		if(super.cyclesPassed()) {
-			ACASim.dbgLog("PC " + super.cpu.mem().PC + " -> " + super.cpu.mem().REG[super.dest]);
-			super.cpu.mem().PC = super.cpu.mem().REG[super.dest];
+			ACASim.dbgLog("PC " + super.cpu.mem().PC + " -> " + super.cpu.mem().REG[super.srcreg1]);
+			super.cpu.mem().PC = super.cpu.mem().REG[super.srcreg1];
 			
 			// release dummy result (TODO better way)
 			super.result = 0;
@@ -26,7 +26,7 @@ public class JInstruction extends Instruction {
 
 	@Override
 	public void decode() {
-		super.dest = super.op1;
+		super.srcreg1 = super.op1;
 	}
 
 	@Override

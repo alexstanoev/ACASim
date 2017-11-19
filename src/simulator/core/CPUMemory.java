@@ -1,12 +1,13 @@
 package simulator.core;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class CPUMemory {
 
-	public static final int FETCH_WIDTH = 1;
-	public static final int RS_WIDTH = 1;
-	
+	public static final int FETCH_WIDTH = 2;
+	public static final int RS_WIDTH = 4;
+
 	public static final int MEMSIZE = 128;
 	public static final int NUMREGS = 10;
 	public int[] DMEM = new int[MEMSIZE];
@@ -21,6 +22,11 @@ public class CPUMemory {
 	// R9  - LR
 	// R10 - SP
 	public int[] REG = new int[NUMREGS];
+	public boolean[] SCOREBOARD = new boolean[NUMREGS];
+
+	public CPUMemory() {
+		Arrays.fill(SCOREBOARD, true);
+	}
 
 	public ArrayList<Integer> getIMemList() {
 		return imem;

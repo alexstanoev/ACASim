@@ -300,9 +300,10 @@ public class CPUView extends JFrame {
 
 		// registers
 		int i = 0;
+		int k = 0;
 		for(int val : mem.REG) {
 			String curr = (String) tblRegisters.getModel().getValueAt(i, 1);
-			String next = String.format(MEM_BITS_FMT, val);
+			String next = String.format(MEM_BITS_FMT, val) + " (" + mem.SCOREBOARD[k++] + ")";
 
 			if(!next.equals(curr)) {
 				tblRegisters.getModel().setValueAt("1", i, 2);

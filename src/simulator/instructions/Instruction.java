@@ -15,7 +15,10 @@ public abstract class Instruction implements IStageTransaction {
 	protected int op1;  // operand 1
 	protected int op2;  // operand 2
 	protected int op3;  // operand 3
-	protected int dest; // destination register
+
+	protected int srcreg1 = -1;
+	protected int srcreg2 = -1;
+	protected int destreg = -1; // destination register
 
 	protected Integer result = null; // temporary result (from Execute stage), written to dest in WriteBack stage
 	protected int clockCycles; // clock cycles before the result is released
@@ -52,9 +55,36 @@ public abstract class Instruction implements IStageTransaction {
 		return opcode;
 	}
 
+	public void scoreboardDestReg() {
+		if(destreg != -1) {
+			cpu.mem().SCOREBOARD[destreg] = false;
+		}
+	}
+
+	public boolean operandsAvailable() {
+		boolean avail = true;
+
+		if(srcreg1 != -1) {
+			avail = avail && cpu.mem().SCOREBOARD[srcreg1];
+		}
+
+		if(srcreg2 != -1) {
+			avail = avail && cpu.mem().SCOREBOARD[srcreg2];
+		}
+		
+		ACASim.dbgLog(opcode + " avail operands: " + avail);
+
+		return avail;
+	}
+
 	public void _writeBack() {
-		ACASim.dbgLog("Write to R" + dest + " - " + result);
-		cpu.mem().REG[dest] = result;
+		if(destreg == -1) {
+			throw new IllegalStateException("Attempted to write back instruction that does not set destreg");
+		}
+
+		ACASim.dbgLog("Write to R" + destreg + " - " + result);
+		cpu.mem().REG[destreg] = result;
+		cpu.mem().SCOREBOARD[destreg] = true;
 	}
 
 	public boolean isResultAvailable() {

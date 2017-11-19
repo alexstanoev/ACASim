@@ -15,8 +15,8 @@ public class JRInstruction extends Instruction {
 	@Override
 	public void execute() {
 		if(super.cyclesPassed()) {
-			System.out.println("PC " + super.cpu.mem().PC + " -> " + (super.cpu.mem().PC + super.cpu.mem().REG[super.dest]));
-			super.cpu.mem().PC += super.cpu.mem().REG[super.dest];
+			System.out.println("PC " + super.cpu.mem().PC + " -> " + (super.cpu.mem().PC + super.cpu.mem().REG[super.srcreg1]));
+			super.cpu.mem().PC += super.cpu.mem().REG[super.srcreg1];
 			
 			// release dummy result (TODO better way)
 			super.result = 0;
@@ -25,7 +25,7 @@ public class JRInstruction extends Instruction {
 
 	@Override
 	public void decode() {
-		super.dest = super.op1;
+		super.srcreg1 = super.op1;
 	}
 
 	@Override

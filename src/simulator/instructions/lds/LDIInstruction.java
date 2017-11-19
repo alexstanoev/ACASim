@@ -14,7 +14,7 @@ public class LDIInstruction extends Instruction {
 	@Override
 	public void execute() {
 		if(super.cyclesPassed()) {
-			super.cpu.mem().DMEM[super.dest] = super.op1;
+			super.cpu.mem().DMEM[super.op2] = super.op1;
 			
 			super.result = 0;
 		}
@@ -22,7 +22,7 @@ public class LDIInstruction extends Instruction {
 
 	@Override
 	public void decode() {
-		super.dest = super.op2;
+		//super.destreg = super.op2;
 	}
 
 	@Override
