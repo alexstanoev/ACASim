@@ -13,7 +13,7 @@ public class LDIInstruction extends Instruction {
 	// LDI R1 R2 -> DMEM[R2] = R1
 	@Override
 	public void execute() {
-		if(super.cyclesPassed()) {
+		if(super.cyclesPassed() && !super.isSpeculative()) {
 			super.cpu.mem().DMEM[super.op2] = super.op1;
 			
 			super.result = 0;

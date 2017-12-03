@@ -9,14 +9,7 @@ import simulator.instructions.InstructionBundle;
 
 public class ReservationStage implements IPipelineStage {
 
-	//private InstructionBundle old = null;
-	//private InstructionBundle curr = null;
-	//private InstructionBundle next = null;
-
 	private ArrayList<Instruction> instructionQueue = new ArrayList<Instruction>(CPUMemory.RS_WIDTH);
-
-	// execution units
-
 
 	@Override
 	public void tick() {
@@ -34,6 +27,12 @@ public class ReservationStage implements IPipelineStage {
 						Instruction next = instructionQueue.get(i);
 
 						ACASim.dbgLog("Instr: " + next.getOpcode() + " " + next.getEU());
+
+						if(next.isPurged()) {
+							ACASim.dbgLog("Purging from queue");
+							instructionQueue.remove(i);
+							break;
+						}
 
 						if(eus.getType() == next.getEU() && next.operandsAvailable()) {
 							next.fetchOperands();

@@ -9,22 +9,22 @@ public class HALTInstruction extends Instruction {
 	}
 
 	// (special case) halt the CPU
-	// need to stuff the pipeline with NOPs manually (TODO fix)
 	@Override
 	public void execute() {
 		super.cyclesPassed();
 		super.result = 1;
-		super.cpu.halt();
+		//super.cpu.halt();
 	}
 
 	@Override
 	public void decode() {
-		return;
+		// dummy target to allow writeback
+		super.destreg = 0;
 	}
 
 	@Override
 	public void writeBack() {
-		return;
+		super.cpu.halt();
 	}
 
 }

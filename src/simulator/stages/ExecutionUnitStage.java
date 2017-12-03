@@ -32,9 +32,22 @@ public class ExecutionUnitStage implements IPipelineStage {
 			return;
 		}
 		
+		ACASim.dbgLog("curr " + curr);
+		
+		if(curr.isPurged()) {
+			ACASim.dbgLog("Purging from EU " + curr);
+			curr = null;
+			return;
+		}
+		
 		curr.execute();
 		
 		if(curr.isResultAvailable()) {
+			
+			if(type == ExecutionUnit.BRANCH) {
+				ACASim.getInstance().branchPredictor.onBranchExecuted(curr);
+			}
+			
 			ACASim.dbgLog("tossing out " + curr);
 			curr = null;
 		}

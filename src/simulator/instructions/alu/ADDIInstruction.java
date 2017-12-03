@@ -1,5 +1,6 @@
 package simulator.instructions.alu;
 
+import simulator.core.ACASim;
 import simulator.instructions.Instruction;
 import simulator.instructions.Opcode;
 import simulator.stages.ExecutionUnit;
@@ -14,7 +15,9 @@ public class ADDIInstruction extends Instruction {
 	@Override
 	public void execute() {
 		if(super.cyclesPassed()) {
+			
 			super.result = super.regval1 + super.op2;
+			ACASim.dbgLog("cycles passed " + super.regval1 + " " + super.op2);
 		}
 	}
 

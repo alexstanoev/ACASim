@@ -61,9 +61,17 @@ public class DecodeStage implements IPipelineStage {
 			decoded.decode();
 
 			decoded.scoreboardDestReg();
-			
+
+			ACASim.getInstance().branchPredictor.onInstructionDecoded(decoded);
+
 			ACASim.dbgLog("Decoded: " + opc.toString() + " " + op1Raw + " " + op2Raw + " " + op3Raw);
 
+			if(!ACASim.getInstance().branchPredictor.allowDecodeTransactions()) {
+				// branch predictor has blocked further execution
+				// return this instruction back to the bundle?
+				ACASim.dbgLog("BP blocked decode"); 
+			}
+			
 			res.pushInstruction(decoded);
 			ACASim.getInstance().reorderBuffer.push(decoded);
 		}
@@ -85,7 +93,7 @@ public class DecodeStage implements IPipelineStage {
 
 	@Override
 	public boolean isResultAvailable() {
-		return curr != null;
+		return curr != null; // && ACASim.getInstance().branchPredictor.allowDecodeTransactions()
 	}
 
 	@Override

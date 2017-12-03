@@ -4,7 +4,6 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.TreeMap;
 
 import javax.swing.SwingUtilities;
 
@@ -22,7 +21,6 @@ public class ACASim {
 	private static String filename = "prog/test.hex";
 	private CPUView guiInst = null;
 
-	// turning this off will break code relying on branch delay slots!
 	private boolean pipelined = true;
 
 	private Thread simThread = null;
@@ -38,6 +36,8 @@ public class ACASim {
 
 	public HashMap<ExecutionUnit, ArrayList<ExecutionUnitStage>> executionUnits = new HashMap<ExecutionUnit, ArrayList<ExecutionUnitStage>>();
 	public ArrayDeque<Instruction> reorderBuffer = new ArrayDeque<Instruction>();
+	
+	public BranchPredictor branchPredictor;
 
 	public static void main(String[] args) {
 		if(args.length == 0) {
@@ -77,7 +77,8 @@ public class ACASim {
 
 	public void setup() {
 		state = new CPUMemory();
-
+		branchPredictor = new BranchPredictor();
+		
 		instantiatePipeline();
 		instantiateExecutionUnits();
 
@@ -102,6 +103,7 @@ public class ACASim {
 	}
 
 	private void instantiateExecutionUnits() {
+		reorderBuffer.clear();
 		executionUnits.clear();
 		for(ExecutionUnit type : ExecutionUnit.values()) {
 			if(type.num() > 0) {
@@ -316,6 +318,7 @@ public class ACASim {
 		System.out.println("Halting at " + clockTicks + " clock cycles.");
 
 		printRegisters();
+        // TODO print IPC (retired instructions), instr. executed, clock cycles
 
 		if(!useGUI) {
 			System.exit(0);

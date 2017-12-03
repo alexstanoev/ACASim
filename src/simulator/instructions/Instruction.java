@@ -28,6 +28,9 @@ public abstract class Instruction implements IStageTransaction {
 	protected int currCycles = 0;
 
 	protected ExecutionUnit eu;
+	
+	protected boolean speculative = false;
+	protected boolean purged = false;
 
 	public Instruction(int _rawOpcode, int _clockCycles, ExecutionUnit _eu) {
 		this.rawOpcode = _rawOpcode;
@@ -109,17 +112,22 @@ public abstract class Instruction implements IStageTransaction {
 	}
 
 	public boolean isResultAvailable() {
-		return result != null && currCycles == clockCycles;
+		ACASim.dbgLog("res av " + (result != null) + " " + (currCycles >= clockCycles) + " " + (!speculative) + " " + currCycles + " " + clockCycles);
+		return result != null && currCycles >= clockCycles && !speculative;
 	}
 	
 	protected boolean cyclesPassed() {
-		currCycles++;
+		//if(currCycles < clockCycles) {
+			currCycles++;
+		//}
 
-		if(currCycles > clockCycles) {
-			throw new IllegalStateException("Instruction " + opcode + " took more cycles than requested. No result assigned?");
-		}
+		ACASim.dbgLog("Cyclespassed " + currCycles + " " + clockCycles);
+		
+		//if(currCycles > clockCycles) {
+		//	throw new IllegalStateException("Instruction " + opcode + " took more cycles than requested. No result assigned?");
+		//}
 
-		return currCycles == clockCycles;
+		return currCycles >= clockCycles;
 	}
 
 	public void setAddress(int pc) {
@@ -138,6 +146,23 @@ public abstract class Instruction implements IStageTransaction {
 		return eu;
 	}
 
+	public void setSpeculative(boolean _wb) {
+		ACASim.dbgLog("spec " + this.speculative + " -> " + _wb);
+		this.speculative = _wb;
+	}
+	
+	public boolean isSpeculative() {
+		return this.speculative;
+	}
+	
+	public void purge() {
+		this.purged = true;
+	}
+	
+	public boolean isPurged() {
+		return this.purged;
+	}
+	
 	public abstract void decode();
 	public abstract void execute();
 	public abstract void writeBack();

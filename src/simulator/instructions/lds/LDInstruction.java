@@ -14,7 +14,7 @@ public class LDInstruction extends Instruction {
 	// LD R1 R2-> DMEM[R2] = R1
 	@Override
 	public void execute() {
-		if(super.cyclesPassed()) {
+		if(super.cyclesPassed() && !super.isSpeculative()) {
 			super.cpu.mem().DMEM[super.regval2] = super.regval1;
 			
 			ACASim.dbgLog("Set DMEM[" + super.regval2 + "] to " + super.regval1);
