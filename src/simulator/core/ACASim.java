@@ -286,7 +286,6 @@ public class ACASim {
 							synchronized (simThread) {
 								simThread.wait();
 							}
-
 						} else {
 							if(run) {
 								if(clockSleepMs == 0) {
@@ -303,9 +302,7 @@ public class ACASim {
 								}
 							}
 						}
-					} catch(InterruptedException e) {
-
-					}
+					} catch(InterruptedException e) {}
 				}
 			}
 		});

@@ -76,6 +76,12 @@ public abstract class Instruction implements IStageTransaction {
 			return true;
 		}
 		
+		if(destreg != -1 && (srcreg1 == destreg || srcreg2 == destreg)) {
+			System.err.println("Source and destination registers must be different at " + this + " " + destreg + " " + srcreg1 + " " + srcreg2);
+			cpu.halt();
+			return false;
+		}
+		
 		if(srcreg1 != -1) {
 			avail = avail && cpu.mem().SCOREBOARD[srcreg1];
 		}
@@ -156,6 +162,11 @@ public abstract class Instruction implements IStageTransaction {
 	}
 	
 	public void purge() {
+		if(destreg != -1) {
+			// clean up scoreboard
+			cpu.mem().SCOREBOARD[destreg] = true;
+		}
+		
 		this.purged = true;
 	}
 	

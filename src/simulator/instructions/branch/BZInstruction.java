@@ -4,18 +4,17 @@ import simulator.instructions.Instruction;
 import simulator.instructions.Opcode;
 import simulator.stages.ExecutionUnit;
 
-public class BGEZInstruction extends Instruction {
+public class BZInstruction extends Instruction {
 
-	// TODO rename to BGZ
-	public BGEZInstruction() {
-		super(Opcode.BGEZ.hex(), 1, ExecutionUnit.BRANCH);
+	public BZInstruction() {
+		super(Opcode.BZ.hex(), 1, ExecutionUnit.BRANCH);
 	}
 
-	// BGEZ R1 R2 -> PC = (R1 >= 0) ? OP2 : PC
+	// BGEZ R1 R2 -> PC = (R1 < 0) ? R2 : PC
 	@Override
 	public void execute() {
 		if(super.cyclesPassed()) {
-			if(super.regval1 >= 0) {
+			if(super.regval1 == 0) {
 				super.cpu.mem().PC = super.op2;
 			}
 		}

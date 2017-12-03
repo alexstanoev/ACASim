@@ -39,7 +39,10 @@ public enum Opcode {
 	// branch to address in R2 if R1 >= 0
 	BGEZ(0x23,"simulator.instructions.branch.BGEZInstruction"),
 	// branch to address in R2 if R1 < 0
-	BLTZ(0x24,"simulator.instructions.branch.BLTZInstruction");
+	BLTZ(0x24, "simulator.instructions.branch.BLTZInstruction"),
+	
+	// branch to address in R2 if R1 != 0
+	BZ(0x25, "simulator.instructions.branch.BZInstruction");
 
 	private int _hex;
 	private String _class;
