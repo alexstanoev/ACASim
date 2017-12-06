@@ -12,6 +12,8 @@ public class FetchStage implements IPipelineStage {
 	private InstructionBundle curr = null;
 	//private Instruction next = null;
 
+	private boolean stopFetch = false;
+	
 	@Override
 	public void tick() {
 		ACASim.dbgLog("FETCH");
@@ -26,6 +28,12 @@ public class FetchStage implements IPipelineStage {
 		curr = new InstructionBundle();
 
 		for(int i = 0; i < CPUMemory.FETCH_WIDTH; i++) {
+			if(state.PC >= state.getIMemList().size()) {
+				ACASim.dbgLog("out-of-bounds fetch");
+				stopFetch = true;
+				return;
+			}
+			
 			int currOpcode = state.fetchInstrOpcode(state.PC);
 
 			ACASim.dbgLog("new instruction " + String.format("0x%08X", currOpcode));
@@ -53,7 +61,7 @@ public class FetchStage implements IPipelineStage {
 
 	@Override
 	public boolean canAcceptInstruction() {
-		return curr == null;
+		return curr == null && ACASim.getInstance().mem().PC < ACASim.getInstance().mem().getIMemList().size();
 	}
 
 	@Override

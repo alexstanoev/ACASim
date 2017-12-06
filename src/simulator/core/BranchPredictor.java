@@ -4,24 +4,25 @@ import java.util.Random;
 
 import simulator.instructions.Instruction;
 import simulator.instructions.Opcode;
-import simulator.instructions.branch.BGEZInstruction;
-import simulator.instructions.branch.BLTZInstruction;
-import simulator.instructions.branch.BZInstruction;
-import simulator.instructions.branch.JIInstruction;
 import simulator.stages.ExecutionUnit;
 
 public class BranchPredictor {
 
 	private boolean predictedContext = false;
 	private boolean stallDecode = false;
+	private boolean stateSaved = false;
 
-	private int oldPC;
+	private boolean[] SCOREBOARD_SV = new boolean[CPUMemory.NUMREGS];
+
+
+	//private int oldPC;
 	private int predictedPC;
 
 	public void onBranchExecuted(Instruction instr) {
 		ACASim.dbgLog("BRANCH EXECUTED");
 
 		predictedContext = false;
+		predictedPC = -1;
 
 		if(ACASim.getInstance().mem().PC == predictedPC) {
 			ACASim.dbgLog("GUESS CORRECT");
@@ -30,13 +31,24 @@ public class BranchPredictor {
 				if(rbi.isSpeculative()) {
 					rbi.setSpeculative(false);
 				}
-				//else {
-				//	// iterating from the tail of the queue - the first non speculative instruction marks the end
-				//	break;
-				//}
 			}
 		} else {
 			ACASim.dbgLog("GUESS INCORRECT " + ACASim.getInstance().mem().PC + " " + predictedPC);
+
+			//if(stateSaved) {
+			// restore scoreboard
+
+			int i = 0;
+			for(boolean s : ACASim.getInstance().mem().SCOREBOARD) {
+				if(SCOREBOARD_SV[i++] != s) {
+					ACASim.dbgLog("Diff at " + i + " main:" + s);
+				}
+			}
+
+			System.arraycopy(SCOREBOARD_SV, 0, ACASim.getInstance().mem().SCOREBOARD, 0, CPUMemory.NUMREGS);
+			stateSaved = false;
+			ACASim.dbgLog("Restoring scoreboard");
+			//}
 
 			// guess was incorrect, drop all speculative instructions
 			while(ACASim.getInstance().reorderBuffer.size() > 0 && ACASim.getInstance().reorderBuffer.peekFirst().isSpeculative()) {
@@ -62,19 +74,23 @@ public class BranchPredictor {
 
 			predictedContext = true;
 
+			System.arraycopy(ACASim.getInstance().mem().SCOREBOARD, 0, SCOREBOARD_SV, 0, CPUMemory.NUMREGS);
+
 			// TODO decode target PC from instruction
 			// predict taken or not taken
 			// keep branch delay slots in mind
 			int decodedPC = decodePC(instr);
 
-			if(predictBranch(instr)) {
+			if(decodedPC != -1 && predictBranch(instr)) {
 				predictedPC = decodedPC;
+				ACASim.getInstance().mem().PC = predictedPC;
+				//stateSaved = true;
 			} else {
-				predictedPC = ACASim.getInstance().mem().PC;
+				//predictedPC = ACASim.getInstance().mem().PC;
 			}
 
-			oldPC = ACASim.getInstance().mem().PC;
-			ACASim.getInstance().mem().PC = predictedPC;
+			//oldPC = ACASim.getInstance().mem().PC;
+
 		} else {
 			if(predictedContext) {
 				instr.setSpeculative(true);
@@ -84,27 +100,41 @@ public class BranchPredictor {
 	}
 
 	private int decodePC(Instruction instr) {
-		int predictedPC = 0;
-		
+		int predictedPC = -1;
+
 		// J - value in op1 reg [btac]
 		// JR - PC + op1 reg [btac]
-		
+
 		// JI - op1
 		// Bx - value in op2
-		
-		if(instr instanceof JIInstruction) {
+
+		switch(instr.getOpcode()) {
+		case JI:
 			predictedPC = (instr.getRawOpcode() & Opcode.MSK_OP1) >> 16;
-		} else if(instr instanceof BGEZInstruction || instr instanceof BLTZInstruction || instr instanceof BZInstruction) {
+			break;
+		case BGEZ:
+		case BLTZ:
+		case BZ:
 			predictedPC = (instr.getRawOpcode() & Opcode.MSK_OP2) >> 8;
-		} else {
-			// fixme 
+			break;
+		case JR:
+		case J:
+		default:
+			ACASim.dbgLog("Unexpected branch");
+			break;
 		}
-		
+
 		return predictedPC;
 	}
 
 	private boolean predictBranch(Instruction instr) {
-		return new Random().nextBoolean();
+		if(instr.getOpcode() == Opcode.JI || instr.getOpcode() == Opcode.JR || instr.getOpcode() == Opcode.J) {
+			// unconditional
+			return true;
+		}
+
+		return false;
+		//return new Random().nextBoolean();
 	}
 
 	// TODO

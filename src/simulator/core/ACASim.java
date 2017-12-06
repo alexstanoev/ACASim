@@ -15,7 +15,7 @@ public class ACASim {
 
 	private static ACASim inst;
 
-	private static boolean debug = true;
+	private static boolean debug = false;
 	private static boolean useGUI = true;
 
 	private static String filename = "prog/test.hex";
@@ -26,6 +26,7 @@ public class ACASim {
 	private Thread simThread = null;
 	private CPUMemory state;
 	public int clockTicks = 0;
+	public int instructionsRetired = 0;
 
 	private volatile boolean run = false;
 	private volatile boolean doStep = false;
@@ -148,6 +149,7 @@ public class ACASim {
 
 	public void reset() {
 		clockTicks = 0;
+		instructionsRetired = 0;
 		setup();
 		guiInst.update();
 	}

@@ -5,10 +5,11 @@ import java.util.Arrays;
 
 public class CPUMemory {
 
-	public static final int FETCH_WIDTH = 2;
-	public static final int RS_WIDTH = 4;
-	public static final int RB_SIZE = 16;
-
+	public static final int FETCH_WIDTH = 4;
+	public static final int RS_WIDTH = 16;
+	public static final int RB_SIZE = 32;
+	public static final int WB_PER_CYCLE = 8;
+	
 	public static final int MEMSIZE = 128;
 	public static final int NUMREGS = 10;
 	public int[] DMEM = new int[MEMSIZE];

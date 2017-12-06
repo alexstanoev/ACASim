@@ -176,7 +176,7 @@ public class CPUView extends JFrame {
 		// Registers
 
 		tblRegisters.setModel(new DefaultTableModel(
-				new String[CPUMemory.NUMREGS + 2 + 5][3] ,
+				new String[CPUMemory.NUMREGS + 2 + 7][3] ,
 				new String[] {
 						"Register", "Value", null
 				}
@@ -321,6 +321,12 @@ public class CPUView extends JFrame {
 		tblRegisters.getModel().setValueAt("CYCLES", i, 0);
 		tblRegisters.getModel().setValueAt(ACASim.getInstance().clockTicks, i++, 1);
 
+		tblRegisters.getModel().setValueAt("IRET", i, 0);
+		tblRegisters.getModel().setValueAt(ACASim.getInstance().instructionsRetired, i++, 1);
+		
+		tblRegisters.getModel().setValueAt("IPC", i, 0);
+		tblRegisters.getModel().setValueAt(ACASim.getInstance().clockTicks > 0 ? (double) ACASim.getInstance().instructionsRetired / ACASim.getInstance().clockTicks : 0, i++, 1);
+		
 		// stages
 
 		tblRegisters.getModel().setValueAt("STATE", i, 0);

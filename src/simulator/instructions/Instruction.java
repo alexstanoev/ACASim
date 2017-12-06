@@ -84,10 +84,12 @@ public abstract class Instruction implements IStageTransaction {
 		
 		if(srcreg1 != -1) {
 			avail = avail && cpu.mem().SCOREBOARD[srcreg1];
+			ACASim.dbgLog("SR1 " + cpu.mem().SCOREBOARD[srcreg1]);
 		}
 
 		if(srcreg2 != -1) {
 			avail = avail && cpu.mem().SCOREBOARD[srcreg2];
+			ACASim.dbgLog("SR2 " + cpu.mem().SCOREBOARD[srcreg2]);
 		}
 		
 		ACASim.dbgLog(opcode + " avail operands: " + avail);
@@ -118,7 +120,7 @@ public abstract class Instruction implements IStageTransaction {
 	}
 
 	public boolean isResultAvailable() {
-		ACASim.dbgLog("res av " + (result != null) + " " + (currCycles >= clockCycles) + " " + (!speculative) + " " + currCycles + " " + clockCycles);
+		//ACASim.dbgLog("res av " + (result != null) + " " + (currCycles >= clockCycles) + " " + (!speculative) + " " + currCycles + " " + clockCycles);
 		return result != null && currCycles >= clockCycles && !speculative;
 	}
 	

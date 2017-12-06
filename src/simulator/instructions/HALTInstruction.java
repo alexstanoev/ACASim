@@ -19,7 +19,7 @@ public class HALTInstruction extends Instruction {
 	@Override
 	public void decode() {
 		// dummy target to allow writeback
-		super.destreg = 0;
+		//super.destreg = 255;
 	}
 
 	@Override
