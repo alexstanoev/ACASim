@@ -59,11 +59,12 @@ public class DecodeStage implements IPipelineStage {
 			decoded.setOperands(op1Raw, op2Raw, op3Raw);
 
 			decoded.decode();
+			decoded.allocRegister();
 
 			ACASim.getInstance().branchPredictor.onInstructionDecoded(decoded);
 
 			// onInstructionDecoded will save the scoreboard if marking as speculative
-			decoded.scoreboardDestReg();
+			//decoded.scoreboardDestReg();
 			
 			ACASim.dbgLog("Decoded: " + opc.toString() + " " + op1Raw + " " + op2Raw + " " + op3Raw);
 

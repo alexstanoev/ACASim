@@ -2,9 +2,9 @@ package simulator.gui;
 
 import simulator.core.ACASim;
 import simulator.core.CPUMemory;
-import simulator.instructions.Instruction;
+//import simulator.instructions.Instruction;
 import simulator.instructions.Opcode;
-import simulator.stages.IPipelineStage;
+//import simulator.stages.IPipelineStage;
 
 import javax.swing.JFrame;
 import javax.swing.JList;
@@ -176,7 +176,7 @@ public class CPUView extends JFrame {
 		// Registers
 
 		tblRegisters.setModel(new DefaultTableModel(
-				new String[CPUMemory.NUMREGS + 2 + 7][3] ,
+				new String[CPUMemory.NUMPHYSREGS + 4][3] ,
 				new String[] {
 						"Register", "Value", null
 				}
@@ -230,6 +230,7 @@ public class CPUView extends JFrame {
 
 		imemStages.clear();
 
+		/*
 		IPipelineStage fetchStage = ACASim.getInstance().pipeline.get(0);
 		IPipelineStage decodeStage = ACASim.getInstance().pipeline.get(1);
 		IPipelineStage executeStage = ACASim.getInstance().pipeline.get(2);
@@ -239,6 +240,7 @@ public class CPUView extends JFrame {
 		String decodeStr = "empty";
 		String executeStr = "empty";
 		String writebackStr = "empty";
+		*/
 		
 		// TODO FIX: check if the transaction is an instruction or a bundle and process individual instructions in it
 		
@@ -301,9 +303,9 @@ public class CPUView extends JFrame {
 		// registers
 		int i = 0;
 		int k = 0;
-		for(int val : mem.REG) {
+		for(int val : mem.getReg()) {
 			String curr = (String) tblRegisters.getModel().getValueAt(i, 1);
-			String next = String.format(MEM_BITS_FMT, val) + " (" + mem.SCOREBOARD[k++] + ")";
+			String next = String.format(MEM_BITS_FMT, val) + " (" + mem.isSBAvail(k++) + ")";
 
 			if(!next.equals(curr)) {
 				tblRegisters.getModel().setValueAt("1", i, 2);
@@ -311,7 +313,14 @@ public class CPUView extends JFrame {
 				tblRegisters.getModel().setValueAt("0", i, 2);
 			}
 
-			tblRegisters.getModel().setValueAt("R" + i, i, 0);
+			int archReg = mem.getTagArchMap(i);
+			if(archReg >= 0) {
+				tblRegisters.getModel().setValueAt("P" + i + " (R" + archReg +")", i, 0);
+			} else {
+				tblRegisters.getModel().setValueAt("P" + i, i, 0);
+			}
+			
+			//tblRegisters.getModel().setValueAt("P" + i, i, 0);
 			tblRegisters.getModel().setValueAt(next, i++, 1);
 		}
 
@@ -325,10 +334,11 @@ public class CPUView extends JFrame {
 		tblRegisters.getModel().setValueAt(ACASim.getInstance().instructionsRetired, i++, 1);
 		
 		tblRegisters.getModel().setValueAt("IPC", i, 0);
-		tblRegisters.getModel().setValueAt(ACASim.getInstance().clockTicks > 0 ? (double) ACASim.getInstance().instructionsRetired / ACASim.getInstance().clockTicks : 0, i++, 1);
+		tblRegisters.getModel().setValueAt(ACASim.getInstance().clockTicks > 0 ? (double) Math.round(((double) ACASim.getInstance().instructionsRetired / ACASim.getInstance().clockTicks) * 100D) / 100D : 0, i++, 1);
 		
 		// stages
 
+		/*
 		tblRegisters.getModel().setValueAt("STATE", i, 0);
 		tblRegisters.getModel().setValueAt(ACASim.getInstance().pipelineStage, i++, 1);
 
@@ -343,7 +353,8 @@ public class CPUView extends JFrame {
 
 		tblRegisters.getModel().setValueAt("WRITE", i, 0);
 		tblRegisters.getModel().setValueAt(writebackStr, i++, 1);
-
+		*/
+		
 		// memory
 		int j = 0;
 		for(int val : mem.DMEM) {

@@ -2,6 +2,9 @@ package simulator.core;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+
+import simulator.instructions.Instruction;
 
 public class CPUMemory {
 
@@ -9,9 +12,10 @@ public class CPUMemory {
 	public static final int RS_WIDTH = 16;
 	public static final int RB_SIZE = 32;
 	public static final int WB_PER_CYCLE = 8;
-	
+
 	public static final int MEMSIZE = 128;
-	public static final int NUMREGS = 10;
+	public static final int NUMARCHREGS = 16;
+	public static final int NUMPHYSREGS = 64;
 	public int[] DMEM = new int[MEMSIZE];
 
 	// instruction memory - contiguous, variable-length
@@ -23,15 +27,146 @@ public class CPUMemory {
 	// special use:
 	// R9  - LR
 	// R10 - SP
-	public int[] REG = new int[NUMREGS];
-	public boolean[] SCOREBOARD = new boolean[NUMREGS];
+	//private int[] REG = new int[NUMARCHREGS];
 
+	
+
+	private int[] HWREG = new int[NUMPHYSREGS];
+	private boolean[] HWREG_ALLOC = new boolean[NUMPHYSREGS];
+	
+	// remap file
+	private int[] REG_MAPPING = new int[NUMARCHREGS];
+
+	// remap ready tag
+	private boolean[] SCOREBOARD = new boolean[NUMPHYSREGS];
+	
 	public CPUMemory() {
 		Arrays.fill(SCOREBOARD, true);
+		Arrays.fill(REG_MAPPING, -1);
 	}
 
 	public ArrayList<Integer> getIMemList() {
 		return imem;
+	}
+
+	public int[] getReg() {
+		return HWREG;
+	}
+
+	/*
+		In the renaming stage, every architectural register referenced (for read or write) is looked up in an architecturally-indexed remap file. 
+		This file returns a tag and a ready bit. The tag is non-ready if there is a queued instruction which will write to it that has not yet executed. 
+		For read operands, this tag takes the place of the architectural register in the instruction. For every register write, a new tag is pulled 
+		from a free tag FIFO, and a new mapping is written into the remap file, so that future instructions reading the architectural register will 
+		refer to this new tag. The tag is marked as unready, because the instruction has not yet executed. The previous physical register allocated 
+		for that architectural register is saved with the instruction in the reorder buffer, which is a FIFO that holds the instructions in program 
+		order between the decode and graduation stages.
+		
+		The instructions are then placed in various issue queues. As instructions are executed, the tags for their results are broadcast, and the issue
+		queues match these tags against the tags of their non-ready source operands. A match means that the operand is ready. The remap file also matches
+		these tags, so that it can mark the corresponding physical registers as ready. When all the operands of an instruction in an issue queue are ready,
+		that instruction is ready to issue. The issue queues pick ready instructions to send to the various functional units each cycle. 
+		Non-ready instructions stay in the issue queues.
+	 */
+	
+	public int getTagArchMap(int tag) {
+		for(int i = 0; i < NUMARCHREGS; i++) {
+			if(REG_MAPPING[i] == tag) {
+				return i;
+			}
+		}
+		return -1;
+	}
+	
+	public int getTag(int archReg) {
+		if(REG_MAPPING[archReg] == -1) {
+			// not mapped, zero
+			return -2;
+		}
+		return REG_MAPPING[archReg];
+	}
+	
+	// resolve renamed mapping
+	public int readReg(int tag) {
+		if(tag < 0) {
+			return 0;
+		}
+		//if(REG_MAPPING[tag] == -1) {
+		//	ACASim.dbgLog("no mapping");
+		//	return 0;
+		//}
+		return HWREG[tag];
+	}
+
+	// write to renamed register
+	public void writeReg(int tag, int val) {
+		if(tag == -1) {
+			ACASim.dbgLog("no mapping");
+			return;
+		}
+		
+		HWREG[tag] = val;
+		SCOREBOARD[tag] = true;
+
+		//ACASim.dbgLog("Out of registers");
+	}
+
+	public boolean isSBAvail(int tag) {
+		if(tag < 0) {
+			return true;
+		}
+		
+		//System.out.println(tag + " -> " + SCOREBOARD[tag]);
+		
+		return SCOREBOARD[tag];
+	}
+
+	public void setSB(int tag, boolean val) {
+		if(tag < 0) {
+			ACASim.dbgLog("sb no map");
+			return;
+		}
+		SCOREBOARD[tag] = val;
+	}
+
+	public int allocTag(int archReg) {
+		// GC tags
+		for(int i = 0; i < NUMPHYSREGS; i++) {
+			if(HWREG_ALLOC[i]) {
+				for(Instruction rb : ACASim.getInstance().reorderBuffer) {
+					if(!rb.usesTag(i)) {
+						HWREG_ALLOC[i] = false;
+					}
+				}
+			}
+		}
+		
+		for(int i = 0; i < NUMPHYSREGS; i++) {
+			if(!HWREG_ALLOC[i]) {
+				HWREG_ALLOC[i] = true;
+				REG_MAPPING[archReg] = i;
+				SCOREBOARD[i] = false;
+				ACASim.dbgLog("alloc " + i + " to " + archReg);
+				return i;
+				//break;
+				//HWREG[i] = val;
+				//SCOREBOARD[i] = true;
+			}
+		}
+
+		return -1;
+		/*
+		for(int i = 0; i < NUMPHYSREGS; i++) {
+			if(!HWREG_TAG_VALID[i]) {
+				HWREG_TAG_VALID[i] = true;
+				HWREG_TAG_MAPPING[i] = archReg;
+				return i;
+			}
+		}
+
+		// out of registers to allocate?
+		return -1;
+		 */
 	}
 
 	public int fetchInstrOpcode(int iaddr) {

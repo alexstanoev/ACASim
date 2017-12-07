@@ -19,6 +19,7 @@ public abstract class Instruction implements IStageTransaction {
 	protected int srcreg1 = -1;
 	protected int srcreg2 = -1;
 	protected int destreg = -1; // destination register
+	protected int archdestreg = -1;
 	
 	protected int regval1 = -1;
 	protected int regval2 = -1;
@@ -63,7 +64,7 @@ public abstract class Instruction implements IStageTransaction {
 
 	public void scoreboardDestReg() {
 		if(destreg != -1) {
-			cpu.mem().SCOREBOARD[destreg] = false;
+			cpu.mem().setSB(destreg, false);
 		}
 	}
 
@@ -83,13 +84,13 @@ public abstract class Instruction implements IStageTransaction {
 		}
 		
 		if(srcreg1 != -1) {
-			avail = avail && cpu.mem().SCOREBOARD[srcreg1];
-			ACASim.dbgLog("SR1 " + cpu.mem().SCOREBOARD[srcreg1]);
+			avail = avail && cpu.mem().isSBAvail(srcreg1);
+			ACASim.dbgLog("SR1 " + cpu.mem().isSBAvail(srcreg1));
 		}
 
 		if(srcreg2 != -1) {
-			avail = avail && cpu.mem().SCOREBOARD[srcreg2];
-			ACASim.dbgLog("SR2 " + cpu.mem().SCOREBOARD[srcreg2]);
+			avail = avail && cpu.mem().isSBAvail(srcreg2);
+			ACASim.dbgLog("SR2 " + cpu.mem().isSBAvail(srcreg2));
 		}
 		
 		ACASim.dbgLog(opcode + " avail operands: " + avail);
@@ -101,11 +102,11 @@ public abstract class Instruction implements IStageTransaction {
 		ACASim.dbgLog("Fetching operands " + srcreg1 + " " + srcreg2);
 		
 		if(srcreg1 != -1) {
-			this.regval1 = cpu.mem().REG[srcreg1];
+			this.regval1 = cpu.mem().readReg(srcreg1);
 		}
 		
 		if(srcreg2 != -1) {
-			this.regval2 = cpu.mem().REG[srcreg2];
+			this.regval2 = cpu.mem().readReg(srcreg2);
 		}
 	}
 	
@@ -115,8 +116,7 @@ public abstract class Instruction implements IStageTransaction {
 		}
 
 		ACASim.dbgLog("Write to R" + destreg + " - " + result);
-		cpu.mem().REG[destreg] = result;
-		cpu.mem().SCOREBOARD[destreg] = true;
+		cpu.mem().writeReg(destreg, result);
 	}
 
 	public boolean isResultAvailable() {
@@ -124,12 +124,15 @@ public abstract class Instruction implements IStageTransaction {
 		return result != null && currCycles >= clockCycles && !speculative;
 	}
 	
+	public boolean usesTag(int tag) {
+		return srcreg1 == tag || srcreg2 == tag || destreg == tag;
+	}
+	
 	protected boolean cyclesPassed() {
 		//if(currCycles < clockCycles) {
 			currCycles++;
 		//}
 
-		ACASim.dbgLog("Cyclespassed " + currCycles + " " + clockCycles);
 		
 		//if(currCycles > clockCycles) {
 		//	throw new IllegalStateException("Instruction " + opcode + " took more cycles than requested. No result assigned?");
@@ -165,8 +168,8 @@ public abstract class Instruction implements IStageTransaction {
 	
 	public void purge() {
 		if(destreg != -1) {
-			// clean up scoreboard
-			cpu.mem().SCOREBOARD[destreg] = true;
+			// clean up scoreboard TODO undo instead
+			cpu.mem().setSB(destreg, true);
 		}
 		
 		this.purged = true;
@@ -174,6 +177,21 @@ public abstract class Instruction implements IStageTransaction {
 	
 	public boolean isPurged() {
 		return this.purged;
+	}
+	
+	public void allocRegister() {
+		if(destreg != -1) {
+			archdestreg = destreg;
+			destreg = cpu.mem().allocTag(destreg);
+		}
+		
+		if(srcreg1 != -1) {
+			srcreg1 = cpu.mem().getTag(srcreg1);
+		}
+		
+		if(srcreg2 != -1) {
+			srcreg2 = cpu.mem().getTag(srcreg2);
+		}
 	}
 	
 	public abstract void decode();

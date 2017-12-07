@@ -15,7 +15,7 @@ public class ACASim {
 
 	private static ACASim inst;
 
-	private static boolean debug = false;
+	private static boolean debug = true;
 	private static boolean useGUI = true;
 
 	private static String filename = "prog/test.hex";
@@ -167,12 +167,15 @@ public class ACASim {
 			elem.clearOldInstruction();
 		}
 
+		ACASim.dbgLog("------------------");
+		
 		IPipelineStage next = null;
 		for(int i = pipeline.size() - 1; i >= 0; i--) {
 			IPipelineStage elem = pipeline.get(i);
 
 			if(!run) break;
 
+			ACASim.dbgLog("------");
 			ACASim.dbgLog("Tick: " + elem.toString());
 
 			elem.tick();
@@ -326,7 +329,7 @@ public class ACASim {
 
 	public void printRegisters() {
 		System.out.println("Register dump:");
-		for(int r : mem().REG) {
+		for(int r : mem().getReg()) {
 			System.out.println(String.format("0x%08X", r));
 		}
 	}

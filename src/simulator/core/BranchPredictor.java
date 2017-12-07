@@ -12,7 +12,7 @@ public class BranchPredictor {
 	private boolean stallDecode = false;
 	private boolean stateSaved = false;
 
-	private boolean[] SCOREBOARD_SV = new boolean[CPUMemory.NUMREGS];
+	//private boolean[] SCOREBOARD_SV = new boolean[CPUMemory.NUMREGS];
 
 
 	//private int oldPC;
@@ -38,6 +38,7 @@ public class BranchPredictor {
 			//if(stateSaved) {
 			// restore scoreboard
 
+			/*
 			int i = 0;
 			for(boolean s : ACASim.getInstance().mem().SCOREBOARD) {
 				if(SCOREBOARD_SV[i++] != s) {
@@ -49,7 +50,8 @@ public class BranchPredictor {
 			stateSaved = false;
 			ACASim.dbgLog("Restoring scoreboard");
 			//}
-
+			 */
+			
 			// guess was incorrect, drop all speculative instructions
 			while(ACASim.getInstance().reorderBuffer.size() > 0 && ACASim.getInstance().reorderBuffer.peekFirst().isSpeculative()) {
 				Instruction rm = ACASim.getInstance().reorderBuffer.removeFirst();
@@ -74,7 +76,8 @@ public class BranchPredictor {
 
 			predictedContext = true;
 
-			System.arraycopy(ACASim.getInstance().mem().SCOREBOARD, 0, SCOREBOARD_SV, 0, CPUMemory.NUMREGS);
+			// TODO fix
+			//System.arraycopy(ACASim.getInstance().mem().SCOREBOARD, 0, SCOREBOARD_SV, 0, CPUMemory.NUMREGS);
 
 			// TODO decode target PC from instruction
 			// predict taken or not taken

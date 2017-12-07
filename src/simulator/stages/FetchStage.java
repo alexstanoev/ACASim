@@ -12,7 +12,7 @@ public class FetchStage implements IPipelineStage {
 	private InstructionBundle curr = null;
 	//private Instruction next = null;
 
-	private boolean stopFetch = false;
+	//private boolean stopFetch = false;
 	
 	@Override
 	public void tick() {
@@ -30,7 +30,7 @@ public class FetchStage implements IPipelineStage {
 		for(int i = 0; i < CPUMemory.FETCH_WIDTH; i++) {
 			if(state.PC >= state.getIMemList().size()) {
 				ACASim.dbgLog("out-of-bounds fetch");
-				stopFetch = true;
+				//stopFetch = true;
 				return;
 			}
 			
