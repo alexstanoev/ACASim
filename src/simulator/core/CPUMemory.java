@@ -2,7 +2,6 @@ package simulator.core;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 
 import simulator.instructions.Instruction;
 
@@ -23,23 +22,17 @@ public class CPUMemory {
 
 	public int PC;
 
-	// register file, 10 general-purpose registers
-	// special use:
-	// R9  - LR
-	// R10 - SP
 	//private int[] REG = new int[NUMARCHREGS];
-
-	
 
 	private int[] HWREG = new int[NUMPHYSREGS];
 	private boolean[] HWREG_ALLOC = new boolean[NUMPHYSREGS];
-	
+
 	// remap file
 	private int[] REG_MAPPING = new int[NUMARCHREGS];
 
 	// remap ready tag
 	private boolean[] SCOREBOARD = new boolean[NUMPHYSREGS];
-	
+
 	public CPUMemory() {
 		Arrays.fill(SCOREBOARD, true);
 		Arrays.fill(REG_MAPPING, -1);
@@ -61,14 +54,14 @@ public class CPUMemory {
 		refer to this new tag. The tag is marked as unready, because the instruction has not yet executed. The previous physical register allocated 
 		for that architectural register is saved with the instruction in the reorder buffer, which is a FIFO that holds the instructions in program 
 		order between the decode and graduation stages.
-		
+
 		The instructions are then placed in various issue queues. As instructions are executed, the tags for their results are broadcast, and the issue
 		queues match these tags against the tags of their non-ready source operands. A match means that the operand is ready. The remap file also matches
 		these tags, so that it can mark the corresponding physical registers as ready. When all the operands of an instruction in an issue queue are ready,
 		that instruction is ready to issue. The issue queues pick ready instructions to send to the various functional units each cycle. 
 		Non-ready instructions stay in the issue queues.
 	 */
-	
+
 	public int getTagArchMap(int tag) {
 		for(int i = 0; i < NUMARCHREGS; i++) {
 			if(REG_MAPPING[i] == tag) {
@@ -77,7 +70,7 @@ public class CPUMemory {
 		}
 		return -1;
 	}
-	
+
 	public int getTag(int archReg) {
 		if(REG_MAPPING[archReg] == -1) {
 			// not mapped, zero
@@ -85,7 +78,7 @@ public class CPUMemory {
 		}
 		return REG_MAPPING[archReg];
 	}
-	
+
 	// resolve renamed mapping
 	public int readReg(int tag) {
 		if(tag < 0) {
@@ -104,7 +97,7 @@ public class CPUMemory {
 			ACASim.dbgLog("no mapping");
 			return;
 		}
-		
+
 		HWREG[tag] = val;
 		SCOREBOARD[tag] = true;
 
@@ -115,9 +108,9 @@ public class CPUMemory {
 		if(tag < 0) {
 			return true;
 		}
-		
+
 		//System.out.println(tag + " -> " + SCOREBOARD[tag]);
-		
+
 		return SCOREBOARD[tag];
 	}
 
@@ -129,18 +122,20 @@ public class CPUMemory {
 		SCOREBOARD[tag] = val;
 	}
 
-	public int allocTag(int archReg) {
-		// GC tags
+	private void gcTags() {
 		for(int i = 0; i < NUMPHYSREGS; i++) {
 			if(HWREG_ALLOC[i]) {
 				for(Instruction rb : ACASim.getInstance().reorderBuffer) {
 					if(!rb.usesTag(i)) {
 						HWREG_ALLOC[i] = false;
+						break;
 					}
 				}
 			}
 		}
-		
+	}
+
+	public int allocTag(int archReg) {
 		for(int i = 0; i < NUMPHYSREGS; i++) {
 			if(!HWREG_ALLOC[i]) {
 				HWREG_ALLOC[i] = true;
@@ -154,19 +149,10 @@ public class CPUMemory {
 			}
 		}
 
-		return -1;
-		/*
-		for(int i = 0; i < NUMPHYSREGS; i++) {
-			if(!HWREG_TAG_VALID[i]) {
-				HWREG_TAG_VALID[i] = true;
-				HWREG_TAG_MAPPING[i] = archReg;
-				return i;
-			}
-		}
+		// out of registers, hope a gc will help
+		gcTags();
 
-		// out of registers to allocate?
-		return -1;
-		 */
+		return allocTag(archReg);
 	}
 
 	public int fetchInstrOpcode(int iaddr) {

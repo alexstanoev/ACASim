@@ -22,7 +22,7 @@ public class BranchPredictor {
 		ACASim.dbgLog("BRANCH EXECUTED");
 
 		predictedContext = false;
-		predictedPC = -1;
+		//predictedPC = -1;
 
 		if(ACASim.getInstance().mem().PC == predictedPC) {
 			ACASim.dbgLog("GUESS CORRECT");
@@ -51,7 +51,7 @@ public class BranchPredictor {
 			ACASim.dbgLog("Restoring scoreboard");
 			//}
 			 */
-			
+
 			// guess was incorrect, drop all speculative instructions
 			while(ACASim.getInstance().reorderBuffer.size() > 0 && ACASim.getInstance().reorderBuffer.peekFirst().isSpeculative()) {
 				Instruction rm = ACASim.getInstance().reorderBuffer.removeFirst();
@@ -64,6 +64,8 @@ public class BranchPredictor {
 		}
 		// if the guess was correct then remove the speculative and no execute bit from every instr in the reorder buffer after targetaddr
 		// otherwise remove all instrs from rb after targetaddr
+
+		predictedPC = -1;
 	}
 
 	public void onInstructionDecoded(Instruction instr) {
@@ -89,7 +91,7 @@ public class BranchPredictor {
 				ACASim.getInstance().mem().PC = predictedPC;
 				//stateSaved = true;
 			} else {
-				//predictedPC = ACASim.getInstance().mem().PC;
+				predictedPC = ACASim.getInstance().mem().PC + 1;
 			}
 
 			//oldPC = ACASim.getInstance().mem().PC;
