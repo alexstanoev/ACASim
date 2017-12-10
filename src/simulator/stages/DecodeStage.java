@@ -32,10 +32,17 @@ public class DecodeStage implements IPipelineStage {
 		if(next == null) {
 			ACASim.dbgLog("skip");
 			return;
+		} else {
+			if(curr != null && curr.hasInstructions()) {
+				// need to finish curr first
+			} else {
+				curr = next;
+				next = null;
+			}
 		}
 
-		curr = next;
-		next = null;
+		//curr = next;
+		//next = null;
 
 		InstructionBundle res = new InstructionBundle();
 
@@ -61,21 +68,36 @@ public class DecodeStage implements IPipelineStage {
 			decoded.decode();
 			decoded.allocRegister();
 
-			ACASim.getInstance().branchPredictor.onInstructionDecoded(decoded);
+			ACASim.dbgLog("Decoded: " + opc.toString() + " " + op1Raw + " " + op2Raw + " " + op3Raw + " " + decoded);
+
+			int shouldFlushBundle = ACASim.getInstance().branchPredictor.onInstructionDecoded(decoded);
 
 			// onInstructionDecoded will save the scoreboard if marking as speculative
 			//decoded.scoreboardDestReg();
-			
-			ACASim.dbgLog("Decoded: " + opc.toString() + " " + op1Raw + " " + op2Raw + " " + op3Raw);
+
+			if(shouldFlushBundle == 1) {
+				curr = res;
+				old = curr;
+				// leave the branch in the queue so decode keeps ticking it
+				ACASim.dbgLog("Abandoning bundle");
+				return;
+			}
 
 			if(!ACASim.getInstance().branchPredictor.allowDecodeTransactions()) {
 				// branch predictor has blocked further execution
 				// return this instruction back to the bundle?
 				ACASim.dbgLog("BP blocked decode"); 
 			}
-			
+
 			res.pushInstruction(decoded);
 			ACASim.getInstance().reorderBuffer.push(decoded);
+
+			if(shouldFlushBundle == 2) {
+				curr = res;
+				old = curr;
+				ACASim.dbgLog("Flushing bundle");
+				return;
+			}
 		}
 
 		curr = res;
@@ -95,7 +117,7 @@ public class DecodeStage implements IPipelineStage {
 
 	@Override
 	public boolean isResultAvailable() {
-		return curr != null; // && ACASim.getInstance().branchPredictor.allowDecodeTransactions()
+		return curr != null && ACASim.getInstance().branchPredictor.allowDecodeTransactions(); // && ACASim.getInstance().branchPredictor.allowDecodeTransactions()
 	}
 
 	@Override
@@ -126,4 +148,8 @@ public class DecodeStage implements IPipelineStage {
 		next = (InstructionBundle) tr;
 	}
 
+	public void flushBuffer() {
+		curr = null;
+	}
+	
 }

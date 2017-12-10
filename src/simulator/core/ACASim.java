@@ -329,9 +329,11 @@ public class ACASim {
 
 	public void printRegisters() {
 		System.out.println("Register dump:");
-		for(int r : mem().getReg()) {
-			System.out.println(String.format("0x%08X", r));
-		}
+		//for(int r : mem().getReg()) {
+		//	System.out.println(String.format("0x%08X", r));
+		//}
+		
+		state.dumpArchRegisters();
 	}
 
 	public static void dbgLog(String str) {

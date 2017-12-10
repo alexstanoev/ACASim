@@ -1,16 +1,17 @@
 package simulator.core;
 
-import java.util.Random;
-
 import simulator.instructions.Instruction;
 import simulator.instructions.Opcode;
+import simulator.stages.DecodeStage;
 import simulator.stages.ExecutionUnit;
+import simulator.stages.FetchStage;
+import simulator.stages.Stage;
 
 public class BranchPredictor {
 
 	private boolean predictedContext = false;
 	private boolean stallDecode = false;
-	private boolean stateSaved = false;
+	//private boolean stateSaved = false;
 
 	//private boolean[] SCOREBOARD_SV = new boolean[CPUMemory.NUMREGS];
 
@@ -22,6 +23,7 @@ public class BranchPredictor {
 		ACASim.dbgLog("BRANCH EXECUTED");
 
 		predictedContext = false;
+		stallDecode = false;
 		//predictedPC = -1;
 
 		if(ACASim.getInstance().mem().PC == predictedPC) {
@@ -52,6 +54,8 @@ public class BranchPredictor {
 			//}
 			 */
 
+			ACASim.getInstance().mem().restoreRegMap();
+
 			// guess was incorrect, drop all speculative instructions
 			while(ACASim.getInstance().reorderBuffer.size() > 0 && ACASim.getInstance().reorderBuffer.peekFirst().isSpeculative()) {
 				Instruction rm = ACASim.getInstance().reorderBuffer.removeFirst();
@@ -61,6 +65,9 @@ public class BranchPredictor {
 
 				ACASim.dbgLog("INCORRECT " + rm);
 			}
+
+			((FetchStage) (ACASim.getInstance().pipeline.get(Stage.FETCH.val()))).flushBuffer();
+			((DecodeStage) (ACASim.getInstance().pipeline.get(Stage.DECODE.val()))).flushBuffer();
 		}
 		// if the guess was correct then remove the speculative and no execute bit from every instr in the reorder buffer after targetaddr
 		// otherwise remove all instrs from rb after targetaddr
@@ -68,33 +75,42 @@ public class BranchPredictor {
 		predictedPC = -1;
 	}
 
-	public void onInstructionDecoded(Instruction instr) {
+	public int onInstructionDecoded(Instruction instr) {
 		if(instr.getEU() == ExecutionUnit.BRANCH) {
 			if(predictedContext) {
 				// already predicted a branch, stall until it has been executed TODO
 				ACASim.dbgLog("Hit branch inside speculative context!");
-				return;
+				stallDecode = true;
+				return 1;
 			}
 
 			predictedContext = true;
 
 			// TODO fix
 			//System.arraycopy(ACASim.getInstance().mem().SCOREBOARD, 0, SCOREBOARD_SV, 0, CPUMemory.NUMREGS);
+			ACASim.getInstance().mem().saveRegMap();
 
 			// TODO decode target PC from instruction
 			// predict taken or not taken
 			// keep branch delay slots in mind
 			int decodedPC = decodePC(instr);
+			boolean prediction = predictBranch(instr, decodedPC);
 
-			if(decodedPC != -1 && predictBranch(instr)) {
+			if(decodedPC != -1 && prediction) {
 				predictedPC = decodedPC;
+
+				ACASim.dbgLog("Predict taken PC " + ACASim.getInstance().mem().PC + " -> " + predictedPC);
 				ACASim.getInstance().mem().PC = predictedPC;
 				//stateSaved = true;
 			} else {
 				predictedPC = ACASim.getInstance().mem().PC + 1;
+				ACASim.dbgLog("Predict not taken");
 			}
 
 			//oldPC = ACASim.getInstance().mem().PC;
+
+			// decode should ignore the rest of the bundle if we predicted taken
+			return decodedPC != -1 && prediction ? 2 : 0;
 
 		} else {
 			if(predictedContext) {
@@ -102,6 +118,8 @@ public class BranchPredictor {
 				ACASim.dbgLog("Marking instr as speculative");
 			}
 		}
+
+		return 0;
 	}
 
 	private int decodePC(Instruction instr) {
@@ -132,13 +150,24 @@ public class BranchPredictor {
 		return predictedPC;
 	}
 
-	private boolean predictBranch(Instruction instr) {
+	private boolean predictBranch(Instruction instr, int decodedPC) {
 		if(instr.getOpcode() == Opcode.JI || instr.getOpcode() == Opcode.JR || instr.getOpcode() == Opcode.J) {
 			// unconditional
 			return true;
 		}
 
-		return false;
+		//return false;
+		
+		if(decodedPC < ACASim.getInstance().mem().PC) {
+			// backwards jump, predict taken
+			return true;
+		} else {
+			// forwards jump, predict not taken
+			return false;
+		}
+
+		//return true;
+
 		//return new Random().nextBoolean();
 	}
 

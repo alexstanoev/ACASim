@@ -29,7 +29,8 @@ public class CPUMemory {
 
 	// remap file
 	private int[] REG_MAPPING = new int[NUMARCHREGS];
-
+	private int[] REG_MAPPING_SAVED = new int[NUMARCHREGS];
+	
 	// remap ready tag
 	private boolean[] SCOREBOARD = new boolean[NUMPHYSREGS];
 
@@ -60,8 +61,18 @@ public class CPUMemory {
 		these tags, so that it can mark the corresponding physical registers as ready. When all the operands of an instruction in an issue queue are ready,
 		that instruction is ready to issue. The issue queues pick ready instructions to send to the various functional units each cycle. 
 		Non-ready instructions stay in the issue queues.
+		
+		An exception or branch misprediction causes the remap file to back up to the remap state at last valid instruction. 
 	 */
 
+	public void saveRegMap() {
+		System.arraycopy(REG_MAPPING, 0, REG_MAPPING_SAVED, 0, NUMARCHREGS);
+	}
+	
+	public void restoreRegMap() {
+		System.arraycopy(REG_MAPPING_SAVED, 0, REG_MAPPING, 0, NUMARCHREGS);
+	}
+	
 	public int getTagArchMap(int tag) {
 		for(int i = 0; i < NUMARCHREGS; i++) {
 			if(REG_MAPPING[i] == tag) {
@@ -125,11 +136,16 @@ public class CPUMemory {
 	private void gcTags() {
 		for(int i = 0; i < NUMPHYSREGS; i++) {
 			if(HWREG_ALLOC[i]) {
+				boolean used = false;
 				for(Instruction rb : ACASim.getInstance().reorderBuffer) {
-					if(!rb.usesTag(i)) {
-						HWREG_ALLOC[i] = false;
+					if(rb.usesTag(i)) {
+						used = true;
 						break;
 					}
+				}
+
+				if(!used) {
+					HWREG_ALLOC[i] = false;
 				}
 			}
 		}
@@ -143,9 +159,6 @@ public class CPUMemory {
 				SCOREBOARD[i] = false;
 				ACASim.dbgLog("alloc " + i + " to " + archReg);
 				return i;
-				//break;
-				//HWREG[i] = val;
-				//SCOREBOARD[i] = true;
 			}
 		}
 
@@ -175,4 +188,15 @@ public class CPUMemory {
 		}
 	}
 
+	public void dumpArchRegisters() {
+		for(int i = 0; i < NUMARCHREGS; i++) {
+			int hw = REG_MAPPING[i];
+			if(hw >= 0 && HWREG_ALLOC[hw]) {
+				System.out.println("R" + i + ": " + String.format("0x%08X", HWREG[hw]));
+			} else {
+				System.out.println("R" + i + ": unused");
+			}
+		}
+	}
+	
 }

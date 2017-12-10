@@ -26,7 +26,7 @@ public class ReservationStage implements IPipelineStage {
 					for(int i = 0; i < instructionQueue.size(); i++) {
 						Instruction next = instructionQueue.get(i);
 
-						ACASim.dbgLog("Instr: " + next.getOpcode() + " " + next.getEU());
+						ACASim.dbgLog("Instr: " + next.getOpcode() + " " + next.getEU() + " " + next);
 
 						if(next.isPurged()) {
 							ACASim.dbgLog("Purging from queue");

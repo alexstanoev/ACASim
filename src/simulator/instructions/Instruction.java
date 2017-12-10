@@ -93,7 +93,7 @@ public abstract class Instruction implements IStageTransaction {
 			ACASim.dbgLog("SR2 " + cpu.mem().isSBAvail(srcreg2));
 		}
 		
-		ACASim.dbgLog(opcode + " avail operands: " + avail);
+		ACASim.dbgLog(opcode + " avail operands: " + avail + " " + srcreg1 + " " + srcreg2);
 
 		return avail;
 	}
@@ -169,7 +169,7 @@ public abstract class Instruction implements IStageTransaction {
 	public void purge() {
 		if(destreg != -1) {
 			// clean up scoreboard TODO undo instead
-			cpu.mem().setSB(destreg, true);
+			//cpu.mem().setSB(destreg, true);
 		}
 		
 		this.purged = true;

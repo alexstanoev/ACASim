@@ -1,5 +1,5 @@
 ; loop counter
-XOR R0 R0 R0
+;XOR R0 R0 R0
 
 ; R8 1
 ADDI R0 1 R8
@@ -12,14 +12,9 @@ FILL:
 ; i--
 ADDI R0 1 R4
 ; mov r4 to r0
-NOP
-NOP
-NOP
-ADDI R4 0 R0
 
-NOP
-NOP
-NOP
+
+ADDI R4 0 R0
 
 ; C[]
 ;LD R0 R2
@@ -29,22 +24,5 @@ CMP R0 R5 R6
 
 ; i > 0 -> J LOOP1
 BZ R6 %FILL
-; branch delay slot 1
-NOP
-; slot 2
-NOP
 
-NOP
-NOP
-NOP
 HALT
-NOP
-
-NOP
-NOP
-NOP
-NOP
-NOP
-NOP
-NOP
-NOP
