@@ -74,53 +74,16 @@ public class ACAAssembler {
 					return;
 				}
 
-				// TODO parse hex literals
 				if(parts.length > 1) {
-					if(parts[1].startsWith("%")) {
-						if(labels.containsKey(parts[1].substring(1))) {
-							op1 = labels.get(parts[1].substring(1));
-						} else {
-							System.err.println("Nonexistent label: " + parts[1].substring(1));
-							return;
-						}
-					} else if(parts[1].startsWith("R")) {
-						parts[1] = parts[1].substring(1);
-						op1 = Integer.parseInt(parts[1]);
-					} else {
-						op1 = Integer.parseInt(parts[1]);
-					}					
+					op1 = parseOperand(parts[1], labels);
 				}
 
 				if(parts.length > 2) {
-					if(parts[2].startsWith("%")) {
-						if(labels.containsKey(parts[2].substring(1))) {
-							op2 = labels.get(parts[2].substring(1));
-						} else {
-							System.err.println("Nonexistent label: " + parts[1].substring(1));
-							return;
-						}
-					} else if(parts[2].startsWith("R")) {
-						parts[2] = parts[2].substring(1);
-						op2 = Integer.parseInt(parts[2]);
-					} else {
-						op2 = Integer.parseInt(parts[2]);
-					}
+					op2 = parseOperand(parts[2], labels);
 				}
 
 				if(parts.length > 3) {
-					if(parts[3].startsWith("%")) {
-						if(labels.containsKey(parts[3].substring(1))) {
-							op3 = labels.get(parts[3].substring(1));
-						} else {
-							System.err.println("Nonexistent label: " + parts[1].substring(1));
-							return;
-						}
-					} else if(parts[3].startsWith("R")) {
-						parts[3] = parts[3].substring(1);
-						op3 = Integer.parseInt(parts[3]);
-					} else {
-						op3 = Integer.parseInt(parts[3]);
-					}
+					op3 = parseOperand(parts[3], labels);
 				}
 
 				String assembled = String.format("%02X", opc.hex()) + String.format("%02X", op1) + String.format("%02X", op2) + String.format("%02X", op3);
@@ -137,6 +100,32 @@ public class ACAAssembler {
 
 		System.out.println("Program assembled; " + program.size() + " instructions generated");
 
+	}
+
+	private static int parseOperand(String src, HashMap<String, Integer> labels) {
+		int result;
+		if(src.startsWith("%")) {
+			if(labels.containsKey(src.substring(1))) {
+				result = labels.get(src.substring(1));
+			} else {
+				System.err.println("Nonexistent label: " + src.substring(1));
+				throw new IllegalArgumentException();
+			}
+		} else if(src.startsWith("R")) {
+			src = src.substring(1);
+			result = Integer.parseInt(src);
+		} else if(src.startsWith("0x")) {
+			src = src.substring(2);
+			result = Integer.parseInt(src, 16);
+		} else if(src.endsWith("f")) {
+			src = src.substring(0, src.length() - 1);
+			result = Float.floatToIntBits(Float.parseFloat(src));
+			// TODO generate MOV, SHL, MOV
+		} else {
+			result = Integer.parseInt(src);
+		}
+
+		return result;
 	}
 
 }

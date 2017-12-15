@@ -20,6 +20,8 @@ public enum Opcode {
 
 	CMP(0x09, "simulator.instructions.alu.CMPInstruction"),
 	SUBI(0x0A, "simulator.instructions.alu.SUBIInstruction"),
+	
+	MOVI(0x0B, "simulator.instructions.alu.MOVIInstruction"),
 
 	// LOAD/STORE
 	// load REG[OP1] into DMEM[R2]
@@ -47,7 +49,9 @@ public enum Opcode {
 
 	// FPU
 	FADD (0x31, "simulator.instructions.fpu.FADDInstruction"),
-	FADDI(0x32, "simulator.instructions.fpu.FADDIInstruction");
+	FSUB (0x32, "simulator.instructions.fpu.FSUBInstruction"),
+	FMUL (0x33, "simulator.instructions.fpu.FMULInstruction"),
+	FDIV (0x34, "simulator.instructions.fpu.FDIVInstruction");
 	
 	private int _hex;
 	private String _class;

@@ -11,9 +11,6 @@ public class BranchPredictor {
 
 	private boolean predictedContext = false;
 	private boolean stallDecode = false;
-	//private boolean stateSaved = false;
-
-	//private boolean[] SCOREBOARD_SV = new boolean[CPUMemory.NUMREGS];
 
 	private int oldPC;
 	private int predictedPC;
@@ -22,7 +19,7 @@ public class BranchPredictor {
 		ACASim.dbgLog("BEFORE BRANCH EXECUTED PC=" + ACASim.getInstance().mem().PC);
 		oldPC = ACASim.getInstance().mem().PC;
 	}
-	
+
 	public void onBranchExecuted(Instruction instr) {
 		ACASim.dbgLog("BRANCH EXECUTED");
 
@@ -31,12 +28,12 @@ public class BranchPredictor {
 		//predictedPC = -1;
 
 		if(ACASim.getInstance().mem().PC == predictedPC) {
-			
+
 			ACASim.dbgLog("Reverting from PC " + ACASim.getInstance().mem().PC + " to " + oldPC);
-			
+
 			// branch was correct so we did the jump back in decode
 			ACASim.getInstance().mem().PC = oldPC;
-			
+
 			ACASim.dbgLog("GUESS CORRECT");
 			// guess was correct, mark all speculative instructions in RB as not speculative
 			for(Instruction rbi : ACASim.getInstance().reorderBuffer) {
@@ -47,28 +44,11 @@ public class BranchPredictor {
 		} else {
 			ACASim.dbgLog("GUESS INCORRECT " + ACASim.getInstance().mem().PC + " " + predictedPC);
 
-			//if(stateSaved) {
-			// restore scoreboard
-
-			/*
-			int i = 0;
-			for(boolean s : ACASim.getInstance().mem().SCOREBOARD) {
-				if(SCOREBOARD_SV[i++] != s) {
-					ACASim.dbgLog("Diff at " + i + " main:" + s);
-				}
-			}
-
-			System.arraycopy(SCOREBOARD_SV, 0, ACASim.getInstance().mem().SCOREBOARD, 0, CPUMemory.NUMREGS);
-			stateSaved = false;
-			ACASim.dbgLog("Restoring scoreboard");
-			//}
-			 */
-
 			if(ACASim.getInstance().mem().PC == oldPC) {
 				// restore PC to the line after the branch if the branch didn't change PC and we were wrong
 				ACASim.getInstance().mem().PC = instr.getAddress() + 1;
 			}
-			
+
 			ACASim.getInstance().mem().restoreRegMap();
 
 			// guess was incorrect, drop all speculative instructions
@@ -170,11 +150,11 @@ public class BranchPredictor {
 			// unconditional
 			return true;
 		}
-		
+
 		// can't predict Opcode.JR
 
 		//return false;
-		
+
 		if(decodedPC < ACASim.getInstance().mem().PC) {
 			// backwards jump, predict taken
 			return true;
