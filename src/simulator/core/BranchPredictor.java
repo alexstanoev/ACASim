@@ -15,10 +15,14 @@ public class BranchPredictor {
 
 	//private boolean[] SCOREBOARD_SV = new boolean[CPUMemory.NUMREGS];
 
-
-	//private int oldPC;
+	private int oldPC;
 	private int predictedPC;
 
+	public void beforeBranchExecuted(Instruction instr) {
+		ACASim.dbgLog("BEFORE BRANCH EXECUTED PC=" + ACASim.getInstance().mem().PC);
+		oldPC = ACASim.getInstance().mem().PC;
+	}
+	
 	public void onBranchExecuted(Instruction instr) {
 		ACASim.dbgLog("BRANCH EXECUTED");
 
@@ -27,6 +31,12 @@ public class BranchPredictor {
 		//predictedPC = -1;
 
 		if(ACASim.getInstance().mem().PC == predictedPC) {
+			
+			ACASim.dbgLog("Reverting from PC " + ACASim.getInstance().mem().PC + " to " + oldPC);
+			
+			// branch was correct so we did the jump back in decode
+			ACASim.getInstance().mem().PC = oldPC;
+			
 			ACASim.dbgLog("GUESS CORRECT");
 			// guess was correct, mark all speculative instructions in RB as not speculative
 			for(Instruction rbi : ACASim.getInstance().reorderBuffer) {
@@ -54,6 +64,11 @@ public class BranchPredictor {
 			//}
 			 */
 
+			if(ACASim.getInstance().mem().PC == oldPC) {
+				// restore PC to the line after the branch if the branch didn't change PC and we were wrong
+				ACASim.getInstance().mem().PC = instr.getAddress() + 1;
+			}
+			
 			ACASim.getInstance().mem().restoreRegMap();
 
 			// guess was incorrect, drop all speculative instructions
@@ -143,7 +158,7 @@ public class BranchPredictor {
 		case JR:
 		case J:
 		default:
-			ACASim.dbgLog("Unexpected branch");
+			ACASim.dbgLog("Can't predict branch");
 			break;
 		}
 
@@ -151,10 +166,12 @@ public class BranchPredictor {
 	}
 
 	private boolean predictBranch(Instruction instr, int decodedPC) {
-		if(instr.getOpcode() == Opcode.JI || instr.getOpcode() == Opcode.JR || instr.getOpcode() == Opcode.J) {
+		if(instr.getOpcode() == Opcode.JI || instr.getOpcode() == Opcode.J) {
 			// unconditional
 			return true;
 		}
+		
+		// can't predict Opcode.JR
 
 		//return false;
 		

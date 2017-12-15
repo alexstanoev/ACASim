@@ -1,11 +1,11 @@
-; loop counter
-;XOR R0 R0 R0
+; loop counter, 1 per iteration
+ADDI R9 1 R0
 
 ; R8 1
 ADDI R0 1 R8
 
-; R5 i = 10
-ADDI R0 15 R5
+; R5 i = 240
+ADDI R0 10 R5
 
 FILL:
 

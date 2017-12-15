@@ -32,6 +32,7 @@ public class ACAAssembler {
 
 			if(line.endsWith(":")) {
 				labels.put(line.substring(0, line.length() - 1), addr);
+				continue;
 			}
 
 			addr++;

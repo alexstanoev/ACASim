@@ -19,6 +19,7 @@ public enum Opcode {
 	SHR(0x08, "simulator.instructions.alu.SHRInstruction"),
 
 	CMP(0x09, "simulator.instructions.alu.CMPInstruction"),
+	SUBI(0x0A, "simulator.instructions.alu.SUBIInstruction"),
 
 	// LOAD/STORE
 	// load REG[OP1] into DMEM[R2]
@@ -42,8 +43,12 @@ public enum Opcode {
 	BLTZ(0x24, "simulator.instructions.branch.BLTZInstruction"),
 	
 	// branch to address in R2 if R1 != 0
-	BZ(0x25, "simulator.instructions.branch.BZInstruction");
+	BZ(0x25, "simulator.instructions.branch.BZInstruction"),
 
+	// FPU
+	FADD (0x31, "simulator.instructions.fpu.FADDInstruction"),
+	FADDI(0x32, "simulator.instructions.fpu.FADDIInstruction");
+	
 	private int _hex;
 	private String _class;
 

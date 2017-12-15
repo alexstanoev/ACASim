@@ -85,12 +85,12 @@ public abstract class Instruction implements IStageTransaction {
 		
 		if(srcreg1 != -1) {
 			avail = avail && cpu.mem().isSBAvail(srcreg1);
-			ACASim.dbgLog("SR1 " + cpu.mem().isSBAvail(srcreg1));
+			//ACASim.dbgLog("SR1 " + cpu.mem().isSBAvail(srcreg1));
 		}
 
 		if(srcreg2 != -1) {
 			avail = avail && cpu.mem().isSBAvail(srcreg2);
-			ACASim.dbgLog("SR2 " + cpu.mem().isSBAvail(srcreg2));
+			//ACASim.dbgLog("SR2 " + cpu.mem().isSBAvail(srcreg2));
 		}
 		
 		ACASim.dbgLog(opcode + " avail operands: " + avail + " " + srcreg1 + " " + srcreg2);
@@ -120,8 +120,8 @@ public abstract class Instruction implements IStageTransaction {
 	}
 
 	public boolean isResultAvailable() {
-		//ACASim.dbgLog("res av " + (result != null) + " " + (currCycles >= clockCycles) + " " + (!speculative) + " " + currCycles + " " + clockCycles);
-		return result != null && currCycles >= clockCycles && !speculative;
+		//ACASim.dbgLog("res av " + (result) + " " + (currCycles >= clockCycles) + " " + (!speculative) + " " + currCycles + " " + clockCycles);
+		return result != null && currCycles >= clockCycles;
 	}
 	
 	public boolean usesTag(int tag) {

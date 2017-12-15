@@ -295,7 +295,7 @@ public class ACASim {
 							if(run) {
 								if(clockSleepMs == 0) {
 									if(useGUI) {
-										Thread.sleep(5); // yield for GUI
+										Thread.sleep(3); // yield for GUI
 									}
 								} else {
 									Thread.sleep(clockSleepMs);

@@ -78,6 +78,7 @@ public class DecodeStage implements IPipelineStage {
 			if(shouldFlushBundle == 1) {
 				curr = res;
 				old = curr;
+				ACASim.getInstance().mem().PC--;
 				// leave the branch in the queue so decode keeps ticking it
 				ACASim.dbgLog("Abandoning bundle");
 				return;
