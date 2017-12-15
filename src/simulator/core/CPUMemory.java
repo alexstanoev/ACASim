@@ -39,6 +39,10 @@ public class CPUMemory {
 		Arrays.fill(REG_MAPPING, -1);
 	}
 
+	public int[] getDMem() {
+		return DMEM;
+	}
+	
 	public ArrayList<Integer> getIMemList() {
 		return imem;
 	}

@@ -88,10 +88,11 @@ public class ACASim {
 		}
 
 		try {
-			inst.loadProgram(filename);
+			inst.loadProgram(filename, "prog/mem.bin");
 			System.out.println("Loaded " + filename);
 		} catch(Exception e) {
 			System.err.println("Failed loading program: " + e.getMessage());
+			e.printStackTrace();
 			System.exit(0);
 		}
 	}
@@ -265,8 +266,9 @@ public class ACASim {
 
 	}
 
-	public void loadProgram(String filename) throws Exception {
+	public void loadProgram(String filename, String memFilename) throws Exception {
 		IOUtils.readProgram(filename, mem().getIMemList());
+		IOUtils.readData(memFilename, mem().getDMem());
 	}
 
 	public void run() {

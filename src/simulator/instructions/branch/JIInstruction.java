@@ -12,7 +12,6 @@ public class JIInstruction extends Instruction {
 	}
 
 	// JI I1 -> PC = I1
-	// branch delay slot: the instruction after jumps is always executed
 	@Override
 	public void execute() {
 		if(super.cyclesPassed()) {

@@ -10,13 +10,23 @@ public class IOUtils {
 	public static void readProgram(String filename, ArrayList<Integer> imem) throws Exception {
 		Scanner s = new Scanner(new File(filename));
 		while (s.hasNext()) {
-			int num = s.nextInt(16);
+			int num = (int) s.nextLong(16);
 			//System.out.println(num);
 			imem.add(num);
 		}
 		s.close();
 	}
 
+	public static void readData(String filename, int[] dmem) throws Exception {
+		int loc = 0;
+		Scanner s = new Scanner(new File(filename));
+		while (s.hasNext()) {
+			int num = (int) s.nextLong(16);
+			dmem[loc++] = num;
+		}
+		s.close();
+	}
+	
 	public static void readFile(String filename, ArrayList<String> dest) throws Exception {
 		Scanner s = new Scanner(new File(filename));
 		while (s.hasNext()) {
