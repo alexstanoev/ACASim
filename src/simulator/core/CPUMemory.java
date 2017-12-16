@@ -77,6 +77,15 @@ public class CPUMemory {
 		System.arraycopy(REG_MAPPING_SAVED, 0, REG_MAPPING, 0, NUMARCHREGS);
 	}
 	
+	public int getArchReg(int archReg) {
+		if(REG_MAPPING[archReg] == -1) {
+			// not mapped, zero
+			return -2;
+		}
+		
+		return HWREG[REG_MAPPING[archReg]];
+	}
+	
 	public int getTagArchMap(int tag) {
 		for(int i = 0; i < NUMARCHREGS; i++) {
 			if(REG_MAPPING[i] == tag) {

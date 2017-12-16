@@ -31,11 +31,6 @@ import net.miginfocom.swing.MigLayout;
 
 public class CPUView extends JFrame {
 
-	private final int MSK_OPC = 0xff000000;
-	private final int MSK_OP1 = 0x00ff0000;
-	private final int MSK_OP2 = 0x0000ff00;
-	private final int MSK_OP3 = 0x000000ff;
-
 	private final String MEM_BITS_FMT = "0x%08X";
 
 	private HashMap<Integer, String> imemStages = new HashMap<Integer, String>();
@@ -50,7 +45,7 @@ public class CPUView extends JFrame {
 
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setTitle("CPUView");
-		setSize(1024, 600);
+		setSize(800, 600);
 
 		getContentPane().setLayout(new MigLayout("", "[100.00:100.00][100.00:100.00][100.00:100.00][230.00][175.00,grow]", "[][grow][5px:5px][40.00:40.00][5px:5px]"));
 
@@ -102,7 +97,7 @@ public class CPUView extends JFrame {
 		btnStep.setFont(new Font("Noto Sans", Font.PLAIN, 16));
 		getContentPane().add(btnStep, "flowx,cell 0 3,alignx center,growy");
 
-		JButton btnRun = new JButton("Run");
+		btnRun = new JButton("Run");
 		btnRun.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
@@ -136,8 +131,8 @@ public class CPUView extends JFrame {
 			}
 		});
 
-		sliderSpeed.setMaximum(1000);
-		sliderSpeed.setMajorTickSpacing(100);
+		sliderSpeed.setMaximum(500);
+		sliderSpeed.setMajorTickSpacing(50);
 		sliderSpeed.setPaintTicks(true);
 		sliderSpeed.setValue(5);
 		getContentPane().add(sliderSpeed, "cell 3 3,alignx center,aligny center");
@@ -160,10 +155,10 @@ public class CPUView extends JFrame {
 			public Object getElementAt(int index) {
 				int val = mem.getIMemList().get(index);
 
-				int opcRaw = (val & MSK_OPC) >> 24;
-				int op1Raw = (val & MSK_OP1) >> 16;
-				int op2Raw = (val & MSK_OP2) >> 8;
-				int op3Raw = val & MSK_OP3;
+				int opcRaw = (val & Opcode.MSK_OPC) >> 24;
+				int op1Raw = (val & Opcode.MSK_OP1) >> 16;
+				int op2Raw = (val & Opcode.MSK_OP2) >> 8;
+				int op3Raw = val & Opcode.MSK_OP3;
 
 				Opcode opc = Opcode.fromHex(opcRaw);
 
@@ -181,7 +176,7 @@ public class CPUView extends JFrame {
 		// Registers
 
 		tblRegisters.setModel(new DefaultTableModel(
-				new String[CPUMemory.NUMPHYSREGS + 4][3] ,
+				new String[CPUMemory.NUMPHYSREGS + 4 + CPUMemory.NUMARCHREGS][3] ,
 				new String[] {
 						"Register", "Value", null
 				}
@@ -245,12 +240,12 @@ public class CPUView extends JFrame {
 		String decodeStr = "empty";
 		String executeStr = "empty";
 		String writebackStr = "empty";
-		*/
-		
-		// TODO FIX: check if the transaction is an instruction or a bundle and process individual instructions in it
-		
+		 */
+
+		// FIX: check if the transaction is an instruction or a bundle and process individual instructions in it
+
 		/*
-		
+
 		if(fetchStage.getCurrentTransaction() != null) {
 			Instruction instr = fetchStage.getCurrentTransaction();
 			imemStages.put(instr.getAddress(), "FETCH");
@@ -265,7 +260,7 @@ public class CPUView extends JFrame {
 			fetchStr = opc + " " + op1Raw + " " + op2Raw + " " + op3Raw;
 		}
 
-		
+
 		if(decodeStage.getCurrentTransaction() != null) {
 			Instruction instr = decodeStage.getCurrentTransaction();
 			imemStages.put(instr.getAddress(), "DECODE");
@@ -277,7 +272,7 @@ public class CPUView extends JFrame {
 			decodeStr = instr.getOpcode() + " " + op1Raw + " " + op2Raw + " " + op3Raw;
 		}
 
-		
+
 		if(executeStage.getCurrentTransaction() != null) {
 			Instruction instr = executeStage.getCurrentTransaction();
 			imemStages.put(executeStage.getCurrentTransaction().getAddress(), "EXECUTE");
@@ -289,7 +284,7 @@ public class CPUView extends JFrame {
 			executeStr = instr.getOpcode() + " " + op1Raw + " " + op2Raw + " " + op3Raw + " (" + instr.getCyclesRemaining() + ")";
 		}
 
-		
+
 		if(writeBackStage.getCurrentTransaction() != null) {
 			Instruction instr = writeBackStage.getCurrentTransaction();
 			imemStages.put(writeBackStage.getCurrentTransaction().getAddress(), "WRITEBACK");
@@ -300,14 +295,39 @@ public class CPUView extends JFrame {
 
 			writebackStr = instr.getOpcode() + " " + op1Raw + " " + op2Raw + " " + op3Raw;
 		}
-		
-		*/
+
+		 */
 
 		listImem.updateUI();
 
 		// registers
 		int i = 0;
 		int k = 0;
+
+		// fake ARCH registers
+
+		for(int r = 0; r < CPUMemory.NUMARCHREGS; r++) {
+			int val = mem.getArchReg(r);
+
+
+			String curr = (String) tblRegisters.getModel().getValueAt(i, 1);
+			String next = val == -2 ? "unused" : String.format(MEM_BITS_FMT, val);
+
+			if(!next.equals(curr)) {
+				tblRegisters.getModel().setValueAt("1", i, 2);
+			} else {
+				tblRegisters.getModel().setValueAt("0", i, 2);
+			}
+
+			tblRegisters.getModel().setValueAt("R" + r, i, 0);
+
+			//tblRegisters.getModel().setValueAt("P" + i, i, 0);
+			tblRegisters.getModel().setValueAt(next, i++, 1);
+		}
+
+		// phys registers
+
+		int pr = 0;
 		for(int val : mem.getReg()) {
 			String curr = (String) tblRegisters.getModel().getValueAt(i, 1);
 			String next = String.format(MEM_BITS_FMT, val) + " (" + mem.isSBAvail(k++) + ")";
@@ -320,13 +340,15 @@ public class CPUView extends JFrame {
 
 			int archReg = mem.getTagArchMap(i);
 			if(archReg >= 0) {
-				tblRegisters.getModel().setValueAt("P" + i + " (R" + archReg +")", i, 0);
+				tblRegisters.getModel().setValueAt("P" + pr + " (R" + archReg +")", i, 0);
 			} else {
-				tblRegisters.getModel().setValueAt("P" + i, i, 0);
+				tblRegisters.getModel().setValueAt("P" + pr, i, 0);
 			}
-			
+
 			//tblRegisters.getModel().setValueAt("P" + i, i, 0);
 			tblRegisters.getModel().setValueAt(next, i++, 1);
+
+			pr++;
 		}
 
 		tblRegisters.getModel().setValueAt("PC", i, 0);
@@ -337,10 +359,10 @@ public class CPUView extends JFrame {
 
 		tblRegisters.getModel().setValueAt("IRET", i, 0);
 		tblRegisters.getModel().setValueAt(ACASim.getInstance().instructionsRetired, i++, 1);
-		
+
 		tblRegisters.getModel().setValueAt("IPC", i, 0);
 		tblRegisters.getModel().setValueAt(ACASim.getInstance().clockTicks > 0 ? (double) Math.round(((double) ACASim.getInstance().instructionsRetired / ACASim.getInstance().clockTicks) * 100D) / 100D : 0, i++, 1);
-		
+
 		// stages
 
 		/*
@@ -358,8 +380,8 @@ public class CPUView extends JFrame {
 
 		tblRegisters.getModel().setValueAt("WRITE", i, 0);
 		tblRegisters.getModel().setValueAt(writebackStr, i++, 1);
-		*/
-		
+		 */
+
 		// memory
 		int j = 0;
 		for(int val : mem.DMEM) {
@@ -371,14 +393,18 @@ public class CPUView extends JFrame {
 			} else {
 				tblDmem.getModel().setValueAt("0", j, 2);
 			}
-			
+
 			tblDmem.getModel().setValueAt(String.format(MEM_BITS_FMT, j), j, 0);
 			tblDmem.getModel().setValueAt(String.format(MEM_BITS_FMT, val), j++, 1);
 		}
 
-		lblState.setText(""); // TODO
+		lblState.setText("TICKS: 15 IRET: 34 IPC: 15"); // TODO
 	}
 
+	public void cpuHalted() {
+		btnRun.setText("Run");
+	}
+	
 	public class ColouredCellRenderer extends javax.swing.table.DefaultTableCellRenderer {
 		private static final long serialVersionUID = 1L;
 
@@ -412,5 +438,6 @@ public class CPUView extends JFrame {
 	@SuppressWarnings("rawtypes")
 	private JList listImem;
 	private JLabel lblState;
+	private JButton btnRun;
 
 }

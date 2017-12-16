@@ -37,7 +37,7 @@ public class ACASim {
 
 	public HashMap<ExecutionUnit, ArrayList<ExecutionUnitStage>> executionUnits = new HashMap<ExecutionUnit, ArrayList<ExecutionUnitStage>>();
 	public ArrayDeque<Instruction> reorderBuffer = new ArrayDeque<Instruction>();
-	
+
 	public BranchPredictor branchPredictor;
 
 	public static void main(String[] args) {
@@ -79,7 +79,7 @@ public class ACASim {
 	public void setup() {
 		state = new CPUMemory();
 		branchPredictor = new BranchPredictor();
-		
+
 		instantiatePipeline();
 		instantiateExecutionUnits();
 
@@ -152,7 +152,9 @@ public class ACASim {
 		clockTicks = 0;
 		instructionsRetired = 0;
 		setup();
-		guiInst.update();
+		if(useGUI) {
+			guiInst.update();
+		}
 	}
 
 	public void setSleepMs(int ms) {
@@ -169,7 +171,7 @@ public class ACASim {
 		}
 
 		ACASim.dbgLog("------------------");
-		
+
 		IPipelineStage next = null;
 		for(int i = pipeline.size() - 1; i >= 0; i--) {
 			IPipelineStage elem = pipeline.get(i);
@@ -297,7 +299,7 @@ public class ACASim {
 							if(run) {
 								if(clockSleepMs == 0) {
 									if(useGUI) {
-										Thread.sleep(3); // yield for GUI
+										//Thread.sleep(3); // yield for GUI
 									}
 								} else {
 									Thread.sleep(clockSleepMs);
@@ -318,11 +320,16 @@ public class ACASim {
 	}
 
 	public void halt() {
+		if(useGUI) {
+			guiInst.update();
+			guiInst.cpuHalted();
+		}
+
 		run = false;
 		System.out.println("Halting at " + clockTicks + " clock cycles.");
 
 		printRegisters();
-        // TODO print IPC (retired instructions), instr. executed, clock cycles
+		// TODO print IPC (retired instructions), instr. executed, clock cycles
 
 		if(!useGUI) {
 			System.exit(0);
@@ -334,7 +341,7 @@ public class ACASim {
 		//for(int r : mem().getReg()) {
 		//	System.out.println(String.format("0x%08X", r));
 		//}
-		
+
 		state.dumpArchRegisters();
 	}
 
