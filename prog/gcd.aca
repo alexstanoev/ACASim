@@ -1,0 +1,42 @@
+;int gcd(int x, int y) {
+;	while(x!=0) {
+;		if(x < y) {
+;			temp = x;
+;			x = y;
+;			y = temp;
+;		} 
+;		x = x % y;
+;	}
+;	return y;
+;}
+
+; R1 - x
+; R2 - y
+; R3 - tmp
+
+MOVI 0 54 R1
+MOVI 0 24 R2
+XOR R3 R3 R3
+
+LOOP:
+	; done if R1(X) == 0
+	BZ R1 %DONE
+	; R4 is -1 if x < y, 0 if x == y, 1 if x > y
+	CMP R1 R2 R4
+	; if x > y then BLTZ
+	BGEZ R4 %MOD
+	; swap x and y
+	ADDI R1 0 R3
+	ADDI R2 0 R1
+	ADDI R3 0 R2
+	
+MOD:
+	; X = X MOD Y
+	MOD R1 R2 R3
+	ADDI R3 0 R1
+    JI %LOOP
+	
+DONE:
+	; result to R9
+    SYS R2
+    HALT

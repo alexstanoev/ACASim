@@ -28,6 +28,7 @@ public class ACAAssembler {
 
 		int addr = 0;
 		for(String line : in) {
+			line = line.trim();
 			if(line.length() == 0 || line.startsWith(";")) continue;
 
 			if(line.endsWith(":")) {
@@ -43,6 +44,7 @@ public class ACAAssembler {
 
 		addr = -1;
 		for(String line : in) {
+			line = line.trim();
 			if(line.length() == 0 || line.startsWith(";")) continue; // comment
 
 			addr++;

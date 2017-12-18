@@ -20,8 +20,12 @@ public enum Opcode {
 
 	CMP(0x09, "simulator.instructions.alu.CMPInstruction"),
 	SUBI(0x0A, "simulator.instructions.alu.SUBIInstruction"),
-	
+
 	MOVI(0x0B, "simulator.instructions.alu.MOVIInstruction"),
+	MOD(0x0C, "simulator.instructions.alu.MODInstruction"),
+	
+	// magic syscall
+	SYS(0x0D, "simulator.instructions.alu.SYSInstruction"),
 
 	// LOAD/STORE
 	// load REG[OP1] into DMEM[R2]
@@ -38,21 +42,22 @@ public enum Opcode {
 	JI(0x21, "simulator.instructions.branch.JIInstruction"),
 	// jump relative
 	JR(0x22, "simulator.instructions.branch.JRInstruction"),
-	
+
 	// branch to address in R2 if R1 >= 0
 	BGEZ(0x23,"simulator.instructions.branch.BGEZInstruction"),
 	// branch to address in R2 if R1 < 0
 	BLTZ(0x24, "simulator.instructions.branch.BLTZInstruction"),
-	
 	// branch to address in R2 if R1 != 0
 	BZ(0x25, "simulator.instructions.branch.BZInstruction"),
+	// branch to address in R2 if R1 > 0
+	BGZ(0x26,"simulator.instructions.branch.BGZInstruction"),
 
 	// FPU
 	FADD (0x31, "simulator.instructions.fpu.FADDInstruction"),
 	FSUB (0x32, "simulator.instructions.fpu.FSUBInstruction"),
 	FMUL (0x33, "simulator.instructions.fpu.FMULInstruction"),
 	FDIV (0x34, "simulator.instructions.fpu.FDIVInstruction");
-	
+
 	private int _hex;
 	private String _class;
 
@@ -86,12 +91,12 @@ public enum Opcode {
 		System.err.println("Illegal opcode: " + opc);
 		return null;
 	}
-	
+
 	public static final int MSK_OPC = 0xff000000;
 	public static final int MSK_OP1 = 0x00ff0000;
 	public static final int MSK_OP2 = 0x0000ff00;
 	public static final int MSK_OP3 = 0x000000ff;
-	
+
 	public static final int POS_OPC = 24;
 	public static final int POS_OP1 = 16;
 	public static final int POS_OP2 = 8;

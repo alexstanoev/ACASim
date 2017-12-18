@@ -121,6 +121,8 @@ public abstract class Instruction implements IStageTransaction {
 
 	public boolean isResultAvailable() {
 		//ACASim.dbgLog("res av " + (result) + " " + (currCycles >= clockCycles) + " " + (!speculative) + " " + currCycles + " " + clockCycles);
+		// this will avoid blocking on branches, might be a good optimisation
+		//if(destreg == -1) return true;
 		return result != null && currCycles >= clockCycles;
 	}
 	

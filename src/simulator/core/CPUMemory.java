@@ -147,8 +147,14 @@ public class CPUMemory {
 	}
 
 	private void gcTags() {
+		// need to leave the last copy of a register in case it is used in the future
+		
 		for(int i = 0; i < NUMPHYSREGS; i++) {
 			if(HWREG_ALLOC[i]) {
+				if(getTagArchMap(i) != -1) {
+					continue;
+				}
+				
 				boolean used = false;
 				for(Instruction rb : ACASim.getInstance().reorderBuffer) {
 					if(rb.usesTag(i)) {

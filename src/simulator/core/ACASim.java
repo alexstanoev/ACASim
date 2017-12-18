@@ -1,5 +1,6 @@
 package simulator.core;
 
+import java.io.File;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -88,7 +89,12 @@ public class ACASim {
 		}
 
 		try {
-			inst.loadProgram(filename, "prog/mem.bin");
+			String memFile = filename + ".mem";
+			if(!new File(memFile).exists()) {
+				memFile = null;
+			}
+
+			inst.loadProgram(filename + ".hex", memFile);
 			System.out.println("Loaded " + filename);
 		} catch(Exception e) {
 			System.err.println("Failed loading program: " + e.getMessage());
@@ -270,7 +276,9 @@ public class ACASim {
 
 	public void loadProgram(String filename, String memFilename) throws Exception {
 		IOUtils.readProgram(filename, mem().getIMemList());
-		IOUtils.readData(memFilename, mem().getDMem());
+		if(memFilename != null) {
+			IOUtils.readData(memFilename, mem().getDMem());
+		}
 	}
 
 	public void run() {

@@ -30,8 +30,8 @@ public class WritebackStage implements IPipelineStage {
 			}
 			
 			if(ACASim.getInstance().reorderBuffer.peekLast().isResultAvailable()) {
+				ACASim.dbgLog("Retiring instruction " + ACASim.getInstance().reorderBuffer.peekLast());
 				ACASim.getInstance().reorderBuffer.removeLast().writeBack();
-				ACASim.dbgLog("Retiring instruction");
 				ACASim.getInstance().instructionsRetired++;
 			} else {
 				ACASim.dbgLog("Waiting on " + ACASim.getInstance().reorderBuffer.peekLast() + " cycles: " + ACASim.getInstance().reorderBuffer.peekLast().getCyclesRemaining() + 

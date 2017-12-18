@@ -168,7 +168,7 @@ public class CPUView extends JFrame {
 				}
 
 				String spaces = String.join("", Collections.nCopies(6 - opc.toString().length(), " "));
-				return opc + spaces + String.format("%02d", op1Raw) + " " + String.format("%02d", op2Raw) + " " + String.format("%02d", op3Raw) + append;
+				return String.format("%02d", index) + ": " + opc + spaces + String.format("%02d", op1Raw) + " " + String.format("%02d", op2Raw) + " " + String.format("%02d", op3Raw) + append;
 			}
 		});
 		listImem.setSelectedIndex(0);

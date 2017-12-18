@@ -27,7 +27,8 @@ public class FetchStage implements IPipelineStage {
 
 		curr = new InstructionBundle();
 
-		for(int i = 0; i < Math.min(CPUMemory.FETCH_WIDTH, (state.getIMemList().size() - state.PC)); i++) {
+		int fetchCount = Math.min(CPUMemory.FETCH_WIDTH, (state.getIMemList().size() - state.PC));
+		for(int i = 0; i < fetchCount; i++) {
 			if(state.PC >= state.getIMemList().size()) {
 				ACASim.dbgLog("out-of-bounds fetch");
 				//stopFetch = true;
@@ -36,7 +37,7 @@ public class FetchStage implements IPipelineStage {
 			
 			int currOpcode = state.fetchInstrOpcode(state.PC);
 
-			ACASim.dbgLog("new instruction " + String.format("0x%08X", currOpcode));
+			ACASim.dbgLog("new instruction " + String.format("0x%08X", currOpcode) + " at PC " + state.PC);
 
 			UnknownInstruction tmp = new UnknownInstruction(currOpcode);
 			tmp.setAddress(state.PC);

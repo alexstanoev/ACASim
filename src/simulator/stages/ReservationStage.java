@@ -21,12 +21,12 @@ public class ReservationStage implements IPipelineStage {
 		for(ExecutionUnit eu : ACASim.getInstance().executionUnits.keySet()) {
 			for(ExecutionUnitStage eus : ACASim.getInstance().executionUnits.get(eu)) {
 				if(eus.canAcceptInstruction()) {
-					ACASim.dbgLog("Free eu: " + eu + " " + eus);
+					//ACASim.dbgLog("Free eu: " + eu + " " + eus);
 
 					for(int i = 0; i < instructionQueue.size(); i++) {
 						Instruction next = instructionQueue.get(i);
 
-						ACASim.dbgLog("Instr: " + next.getOpcode() + " " + next.getEU() + " " + next);
+						//ACASim.dbgLog("Instr: " + next.getOpcode() + " " + next.getEU() + " " + next);
 
 						if(next.isPurged()) {
 							ACASim.dbgLog("Purging from queue");

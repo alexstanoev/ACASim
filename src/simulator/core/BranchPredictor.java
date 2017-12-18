@@ -27,7 +27,9 @@ public class BranchPredictor {
 		stallDecode = false;
 		//predictedPC = -1;
 
-		if(ACASim.getInstance().mem().PC == predictedPC) {
+		int jumpTargetPC = (ACASim.getInstance().mem().PC == oldPC) ? instr.getAddress() + 1 : ACASim.getInstance().mem().PC;
+		
+		if(jumpTargetPC == predictedPC) {
 
 			ACASim.dbgLog("Reverting from PC " + ACASim.getInstance().mem().PC + " to " + oldPC);
 
@@ -42,7 +44,7 @@ public class BranchPredictor {
 				}
 			}
 		} else {
-			ACASim.dbgLog("GUESS INCORRECT " + ACASim.getInstance().mem().PC + " " + predictedPC);
+			ACASim.dbgLog("GUESS INCORRECT PC:" + ACASim.getInstance().mem().PC + " PRED:" + predictedPC + " OLD:" + oldPC + " NEXTI:" + (instr.getAddress() + 1));
 
 			if(ACASim.getInstance().mem().PC == oldPC) {
 				// restore PC to the line after the branch if the branch didn't change PC and we were wrong
@@ -51,6 +53,12 @@ public class BranchPredictor {
 
 			ACASim.getInstance().mem().restoreRegMap();
 
+			//for(Instruction ins : ACASim.getInstance().reorderBuffer) {
+			//	if(ins.isSpeculative()) {
+			//		ACASim.dbgLog("spec: " + ins);
+			//	}
+			//}
+			
 			// guess was incorrect, drop all speculative instructions
 			while(ACASim.getInstance().reorderBuffer.size() > 0 && ACASim.getInstance().reorderBuffer.peekFirst().isSpeculative()) {
 				Instruction rm = ACASim.getInstance().reorderBuffer.removeFirst();
@@ -70,6 +78,19 @@ public class BranchPredictor {
 		predictedPC = -1;
 	}
 
+	public boolean canProcessBundle(Instruction instr) {
+		if(instr.getEU() == ExecutionUnit.BRANCH) {
+			if(predictedContext) {
+				// already predicted a branch, stall until it has been executed TODO
+				ACASim.dbgLog("Hit branch inside speculative context!");
+				stallDecode = true;
+				return false;
+			}
+		}
+		
+		return true;
+	}
+	
 	public int onInstructionDecoded(Instruction instr) {
 		if(instr.getEU() == ExecutionUnit.BRANCH) {
 			if(predictedContext) {
@@ -98,15 +119,21 @@ public class BranchPredictor {
 				ACASim.getInstance().mem().PC = predictedPC;
 				//stateSaved = true;
 			} else {
-				predictedPC = ACASim.getInstance().mem().PC + 1;
-				ACASim.dbgLog("Predict not taken");
+				//predictedPC = ACASim.getInstance().mem().PC + 1;
+				predictedPC = instr.getAddress() + 1;
+				ACASim.dbgLog("Predict not taken PC " + ACASim.getInstance().mem().PC + " -> " + predictedPC);
 			}
+			
+			// ideally this shouldn't be done when predicting not taken
+			//ACASim.getInstance().mem().PC = predictedPC;
 
 			//oldPC = ACASim.getInstance().mem().PC;
 
 			// decode should ignore the rest of the bundle if we predicted taken
 			return decodedPC != -1 && prediction ? 2 : 0;
-
+			
+			// temporary hack: always drop the bundle to work around the early halt bug
+			//return 2;
 		} else {
 			if(predictedContext) {
 				instr.setSpeculative(true);
@@ -155,7 +182,7 @@ public class BranchPredictor {
 
 		//return false;
 
-		if(decodedPC < ACASim.getInstance().mem().PC) {
+		if(decodedPC < instr.getAddress()) {
 			// backwards jump, predict taken
 			return true;
 		} else {
@@ -168,7 +195,6 @@ public class BranchPredictor {
 		//return new Random().nextBoolean();
 	}
 
-	// TODO
 	public boolean allowDecodeTransactions() {
 		return !stallDecode;
 	}

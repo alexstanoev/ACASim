@@ -11,6 +11,10 @@ public class InstructionBundle implements IStageTransaction {
 	public void pushInstruction(Instruction instr) {
 		instructions.add(instr);
 	}
+	
+	public void returnInstruction(Instruction instr) {
+		instructions.push(instr);
+	}
 
 	public Instruction fetchInstruction() {
 		return instructions.poll();
@@ -18,5 +22,9 @@ public class InstructionBundle implements IStageTransaction {
 	
 	public boolean hasInstructions() {
 		return instructions.peek() != null;
+	}
+	
+	public ArrayDeque<Instruction> getQueue() {
+		return instructions;
 	}
 }
