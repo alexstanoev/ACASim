@@ -9,9 +9,13 @@ import simulator.stages.Stage;
 
 public class BranchPredictor {
 
-	public static final int BP_LRU_SIZE = 10;
+	public static final int BP_LRU_SIZE = 1024;
+	public static final int BP_BTAC_SIZE = 16;
 	public static final boolean BP_DYNAMIC = true;
 
+	public int branchesExecuted = 0;
+	public int correctGuesses = 0;
+	
 	private boolean predictedContext = false;
 	private boolean stallDecode = false;
 
@@ -19,6 +23,7 @@ public class BranchPredictor {
 	private int predictedPC;
 
 	private LRUCache<Integer, BPSaturatingState> dynamicLRU = new LRUCache<>(BP_LRU_SIZE);
+	private LRUCache<Integer, Integer> BTAC = new LRUCache<>(BP_BTAC_SIZE);
 
 	public void beforeBranchExecuted(Instruction instr) {
 		ACASim.dbgLog("BEFORE BRANCH EXECUTED PC=" + ACASim.getInstance().mem().PC);
@@ -28,13 +33,20 @@ public class BranchPredictor {
 	public void onBranchExecuted(Instruction instr) {
 		ACASim.dbgLog("BRANCH EXECUTED");
 
+		branchesExecuted++;
 		predictedContext = false;
 		stallDecode = false;
 		//predictedPC = -1;
 
 		int jumpTargetPC = (ACASim.getInstance().mem().PC == oldPC) ? instr.getAddress() + 1 : ACASim.getInstance().mem().PC;
+		
+		if(instr.getOpcode() == Opcode.J && ACASim.getInstance().mem().PC != oldPC) {
+			BTAC.put(instr.getAddress(), ACASim.getInstance().mem().PC);
+			ACASim.dbgLog("BTAC PUT " + instr.getAddress() + " to " + ACASim.getInstance().mem().PC);
+		}
 
 		if(jumpTargetPC == predictedPC) {
+			correctGuesses++;
 
 			ACASim.dbgLog("Reverting from PC " + ACASim.getInstance().mem().PC + " to " + oldPC);
 
@@ -57,8 +69,9 @@ public class BranchPredictor {
 		} else {
 			ACASim.dbgLog("GUESS INCORRECT PC:" + ACASim.getInstance().mem().PC + " PRED:" + predictedPC + " OLD:" + oldPC + " NEXTI:" + (instr.getAddress() + 1));
 
-			if(ACASim.getInstance().mem().PC == oldPC) {
+			if(ACASim.getInstance().mem().PC == oldPC && instr.getOpcode() != Opcode.J) {
 				// restore PC to the line after the branch if the branch didn't change PC and we were wrong
+				// don't do this for instructions that use the BTAC
 				ACASim.getInstance().mem().PC = instr.getAddress() + 1;
 			}
 
@@ -179,8 +192,13 @@ public class BranchPredictor {
 		case BZ:
 			predictedPC = (instr.getRawOpcode() & Opcode.MSK_OP2) >> 8;
 			break;
-		case JR:
 		case J:
+			if(BTAC.containsKey(instr.getAddress())) {
+				predictedPC = BTAC.get(instr.getAddress());
+				ACASim.dbgLog("BTAC pred " + instr.getAddress() + " to " + predictedPC);
+			}
+			break;
+		case JR:
 		default:
 			ACASim.dbgLog("Can't predict branch");
 			break;
@@ -193,20 +211,25 @@ public class BranchPredictor {
 		if(!BP_DYNAMIC) {
 			return predictBranchStatic(instr, decodedPC);
 		} else {
-			if(!dynamicLRU.containsKey(instr.getAddress())) {
-				boolean staticPred = predictBranchStatic(instr, decodedPC);
-
-				BPSaturatingState cacheVal = staticPred ? BPSaturatingState.WEAK_YES : BPSaturatingState.WEAK_NO;
-				dynamicLRU.put(instr.getAddress(), cacheVal);
-
-				return staticPred;
-			} else {
-				BPSaturatingState cacheVal = dynamicLRU.get(instr.getAddress());
-
-				return (cacheVal == BPSaturatingState.WEAK_YES || cacheVal == BPSaturatingState.WEAK_NO);
-			}
+			return predictBranchDynamic(instr, decodedPC);
 		}
 	}
+
+	private boolean predictBranchDynamic(Instruction instr, int decodedPC) {
+		if(!dynamicLRU.containsKey(instr.getAddress())) {
+			boolean staticPred = predictBranchStatic(instr, decodedPC);
+
+			BPSaturatingState cacheVal = staticPred ? BPSaturatingState.WEAK_YES : BPSaturatingState.WEAK_NO;
+			dynamicLRU.put(instr.getAddress(), cacheVal);
+
+			return staticPred;
+		} else {
+			BPSaturatingState cacheVal = dynamicLRU.get(instr.getAddress());
+
+			return (cacheVal == BPSaturatingState.WEAK_YES || cacheVal == BPSaturatingState.WEAK_NO);
+		}
+	}
+
 
 	private boolean predictBranchStatic(Instruction instr, int decodedPC) {
 		if(instr.getOpcode() == Opcode.JI || instr.getOpcode() == Opcode.J) {
@@ -214,9 +237,8 @@ public class BranchPredictor {
 			return true;
 		}
 
-		// can't predict Opcode.JR
-
-		//return false;
+		// can't predict Opcode.JR yet
+		// should be doable by computing target
 
 		if(decodedPC < instr.getAddress()) {
 			// backwards jump, predict taken

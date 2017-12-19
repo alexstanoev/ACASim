@@ -6,7 +6,7 @@ public enum ExecutionUnit {
 	ALU(4),
 	FPU(1),
 	BRANCH(1),
-	LDS(1);
+	LDS(3);
 
 	private int _num;
 

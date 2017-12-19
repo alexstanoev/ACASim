@@ -28,6 +28,7 @@ public class ACASim {
 	private CPUMemory state;
 	public int clockTicks = 0;
 	public int instructionsRetired = 0;
+	private long startTime;
 
 	private volatile boolean run = false;
 	private volatile boolean doStep = false;
@@ -134,6 +135,7 @@ public class ACASim {
 
 	// GUI API start	
 	public void runContinuously() {
+		startTime = System.currentTimeMillis();
 		doStep = false;
 		run = true;
 		synchronized (simThread) {
@@ -334,7 +336,9 @@ public class ACASim {
 		}
 
 		run = false;
-		System.out.println("Halting at " + clockTicks + " clock cycles.");
+		double ipc = clockTicks > 0 ? (double) Math.round(((double) instructionsRetired / clockTicks) * 100D) / 100D : 0;
+		System.out.println("Halting at " + clockTicks + " clock cycles. (" + (System.currentTimeMillis() - startTime) + " ms) IPC: " + ipc +
+				" Branches correct: " + branchPredictor.correctGuesses + "/" + branchPredictor.branchesExecuted + " total");
 
 		printRegisters();
 		// TODO print IPC (retired instructions), instr. executed, clock cycles

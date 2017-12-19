@@ -147,7 +147,18 @@ public class CPUMemory {
 		SCOREBOARD[tag] = val;
 	}
 
-	private void gcTags() {
+	public int tagsAvailable() {
+		int avail = 0;
+		for(int i = 0; i < NUMPHYSREGS; i++) {
+			if(!HWREG_ALLOC[i]) {
+				avail++;
+			}
+		}
+		
+		return avail;
+	}
+	
+	public void gcTags() {
 		// need to leave the last copy of a register in case it is used in the future
 
 		for(int i = 0; i < NUMPHYSREGS; i++) {
@@ -184,7 +195,7 @@ public class CPUMemory {
 
 		// out of registers, hope a gc will help
 		gcTags();
-
+		
 		return allocTag(archReg);
 	}
 

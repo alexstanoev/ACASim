@@ -1,7 +1,5 @@
 package simulator.stages;
 
-import java.util.ArrayList;
-
 import simulator.core.ACASim;
 import simulator.core.CPUMemory;
 import simulator.instructions.Instruction;
@@ -14,16 +12,10 @@ public class DecodeStage implements IPipelineStage {
 	private InstructionBundle old = null;
 	private InstructionBundle curr = null;
 	private InstructionBundle next = null;
-
 	private InstructionBundle held = null;
 
 	// [--OP--][--O1--][--O2--][--O3--] 4 x 8 bits operands
 	// [------------------------------] 32 bit instruction
-
-	private final int MSK_OPC = 0xff000000;
-	private final int MSK_OP1 = 0x00ff0000;
-	private final int MSK_OP2 = 0x0000ff00;
-	private final int MSK_OP3 = 0x000000ff;
 
 	@Override
 	public void tick() {
@@ -38,7 +30,7 @@ public class DecodeStage implements IPipelineStage {
 			ACASim.dbgLog("skip decode blocked");
 			return;
 		}
-		
+
 		if(next == null && held == null) { 
 			ACASim.dbgLog("skip nothing to do " + (next == null) + " " + (held == null));
 			return;
@@ -67,16 +59,16 @@ public class DecodeStage implements IPipelineStage {
 		InstructionBundle res = new InstructionBundle();
 
 		int branchCount = 0;
-		
+
 		while(curr.hasInstructions()) {
 			Instruction enc = curr.fetchInstruction();
 
 			ACASim.dbgLog("new instruction " + String.format("0x%08X", enc.getRawOpcode()));
 
-			int opcRaw = (enc.getRawOpcode() & MSK_OPC) >> 24;
-			int op1Raw = (enc.getRawOpcode() & MSK_OP1) >> 16;
-			int op2Raw = (enc.getRawOpcode() & MSK_OP2) >> 8;
-			int op3Raw = enc.getRawOpcode() & MSK_OP3;
+			int opcRaw = (enc.getRawOpcode() & Opcode.MSK_OPC) >> 24;
+			int op1Raw = (enc.getRawOpcode() & Opcode.MSK_OP1) >> 16;
+			int op2Raw = (enc.getRawOpcode() & Opcode.MSK_OP2) >> 8;
+			int op3Raw =  enc.getRawOpcode() & Opcode.MSK_OP3;
 
 			Opcode opc = Opcode.fromHex(opcRaw);
 
@@ -96,7 +88,16 @@ public class DecodeStage implements IPipelineStage {
 
 			boolean bpAllowProcess = ACASim.getInstance().branchPredictor.canProcessBundle(decoded);
 			if(decoded.getEU() == ExecutionUnit.BRANCH) branchCount++;
-			
+
+			/*
+			int tagsAvailable = ACASim.getInstance().mem().tagsAvailable();
+			if(tagsAvailable == 0) {
+				ACASim.getInstance().mem().gcTags();
+				tagsAvailable = ACASim.getInstance().mem().tagsAvailable();
+			}
+			|| tagsAvailable == 0
+			 */
+
 			if(!bpAllowProcess || branchCount > 1) {
 				// the branch predictor prevents us from committing this bundle
 				// this will set allowDecodeTransactions to false
@@ -104,7 +105,7 @@ public class DecodeStage implements IPipelineStage {
 
 				// relying on held.hasInstructions()
 				//holdingBundle = true;
-				
+
 				curr.returnInstruction(enc);
 
 				// still commit whatever we can
@@ -154,11 +155,11 @@ public class DecodeStage implements IPipelineStage {
 			// curr has leftover unknowninstructions
 			// save it to held
 			held = curr;
-			
+
 			for(Instruction instr : held.getQueue()) {
 				ACASim.dbgLog("In held: " + instr.getAddress());
 			}
-			
+
 		} else {
 			// we've processed everything
 			held = null;
@@ -178,7 +179,7 @@ public class DecodeStage implements IPipelineStage {
 			ACASim.dbgLog("Commit to rb " + instr + " " + instr.getAddress());
 
 			int shouldFlushBundle = ACASim.getInstance().branchPredictor.onInstructionDecoded(instr);
-			
+
 			boolean flush = false;
 			if(shouldFlushBundle == 1) {
 				// if we hit this then there was another branch in the bundle that we missed
@@ -189,12 +190,12 @@ public class DecodeStage implements IPipelineStage {
 				ACASim.dbgLog("Flushing bundle");
 				flush = true;
 			}
-			
+
 			instr.allocRegister();
-			
+
 			tmp.pushInstruction(instr);
 			ACASim.getInstance().reorderBuffer.push(instr);
-			
+
 			if(flush) {
 				held = null;
 				next = null;
@@ -203,7 +204,7 @@ public class DecodeStage implements IPipelineStage {
 		}
 
 		curr = tmp;
-		
+
 		//if(holdingBundle && next != null) {
 		//	curr = next;
 		//	next = null;
@@ -261,7 +262,7 @@ public class DecodeStage implements IPipelineStage {
 		curr = null;
 		held = null;
 		next = null;
-		
+
 		ACASim.dbgLog("Flush bundle");
 	}
 
