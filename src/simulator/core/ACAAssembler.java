@@ -10,9 +10,19 @@ public class ACAAssembler {
 	private static HashMap<String, String> registerAliases = new HashMap<String, String>();
 
 	static {
-		registerAliases.put("RZ", "R99");
-		registerAliases.put("RA", "R14");
-		registerAliases.put("RSP", "R15");
+		// R0 - R7, no alt names
+		
+		registerAliases.put("RV0", "R8"); // result value 1
+		registerAliases.put("RV1", "R9"); // result value 2
+		registerAliases.put("RF0", "R10"); // fn arg 1
+		registerAliases.put("RF1", "R11"); // fn arg 2
+		registerAliases.put("RS0", "R12"); // saved value 1
+		registerAliases.put("RS1", "R13"); // saved value 2
+		
+		registerAliases.put("RA", "R14"); // return address
+		registerAliases.put("RSP", "R15"); // stack pointer
+		
+		registerAliases.put("RZ", "R99"); // always zero
 	}
 
 	public static void main(String[] args) {

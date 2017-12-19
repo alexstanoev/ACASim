@@ -1,0 +1,38 @@
+; set up stack
+MOVI 0 0xFF RSP
+
+MOVI 0 9 RV0
+MOVI 0 10 RS0
+
+ADDI RV0 0 RF0
+SPC 2 RA
+JI %stack
+ADDI RV0 0 RF1
+
+SYS RS0
+SYS RV0
+HALT
+
+; functions
+
+stack:
+	; Prologue
+	SUBI RSP 6 R2
+	ADDI R2 0 RSP
+	
+	; push RA
+	STO RA RSP 2
+	STO RS0 RSP 1
+	STO RS1 RSP 0
+	
+	ADDI RF0 1 R2
+	ADDI R2 0 RF1
+	
+	LDO RA RSP 2
+	LDO RS0 RSP 1
+	LDO RS1 RSP 0
+	
+	ADDI RSP 6 R2
+	ADDI R2 0 RSP
+	
+	J RA

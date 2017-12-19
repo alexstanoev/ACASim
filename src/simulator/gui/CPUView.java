@@ -189,9 +189,9 @@ public class CPUView extends JFrame {
 
 
 		tblRegisters.getColumnModel().getColumn(0).setResizable(false);
-		tblRegisters.getColumnModel().getColumn(0).setPreferredWidth(60);
-		tblRegisters.getColumnModel().getColumn(0).setMinWidth(60);
-		tblRegisters.getColumnModel().getColumn(0).setMaxWidth(60);
+		tblRegisters.getColumnModel().getColumn(0).setPreferredWidth(70);
+		tblRegisters.getColumnModel().getColumn(0).setMinWidth(70);
+		tblRegisters.getColumnModel().getColumn(0).setMaxWidth(70);
 		tblRegisters.getColumnModel().removeColumn(tblRegisters.getColumnModel().getColumn(2));
 
 		tblRegisters.setDefaultRenderer(Object.class, new ColouredCellRenderer());

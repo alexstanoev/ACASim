@@ -171,6 +171,7 @@ public class BranchPredictor {
 
 		switch(instr.getOpcode()) {
 		case JI:
+		case JAL:
 			predictedPC = (instr.getRawOpcode() & Opcode.MSK_OP1) >> 16;
 			break;
 		case BGEZ:

@@ -1,0 +1,106 @@
+; set up stack
+MOVI 0 0xFF RSP
+
+; main
+MOVI 0 8 RV0
+
+XOR RS0 RS0 RS0
+XOR RS1 RS1 RS1
+
+SYS RSP
+SYS RV0
+
+; Call fibonacci
+;move $a0, $v0
+ADDI RV0 0 RF0
+SPC 2 RA
+JI %fibonacci
+;move $a1, $v0 # save return value to a1
+ADDI RV0 0 RF1
+
+; print return
+SYS RF1
+HALT
+
+; functions
+
+fibonacci:
+	SYS RA
+	; Prologue
+	; addi $sp, $sp, -12
+	; alloc 12 bytes from SP
+	SUBI RSP 6 R2
+	ADDI R2 0 RSP
+	
+	; push RA
+	STO RA RSP 2
+	STO RS0 RSP 1
+	STO RS1 RSP 0
+	
+	SYS RSP
+	
+	;sw $ra, 8($sp)
+	;sw $s0, 4($sp)
+	;sw $s1, 0($sp)
+	
+	; copy arg to RS0
+	; move $s0, $a0
+	ADDI RF0 0 RS0
+	; li $v0, 1 # return value for terminal condition
+	MOVI 0 1 RV0
+
+	; ble $s0, 0x2, fibonacciExit # check terminal condition
+	MOVI 0 2 R2
+	CMP R2 RS0 R3
+	
+	SYS R3
+	
+	BGEZ R3 %fibonacciExit
+	
+	;SYS R3
+	
+	;addi $a0, $s0, -1 # set args for recursive call to f(n-1)
+	SUBI RS0 1 RF0
+	
+	SPC 2 RA
+	JI %fibonacci
+
+	ADDI RV0 0 RS1
+
+	;move $s1, $v0 # store result of f(n-1) to s1
+
+	SUBI RS0 2 RF0
+	;addi $a0, $s0, -2 # set args for recursive call to f(n-2)
+
+	SPC 2 RA
+	JI %fibonacci
+
+	ADD RV0 RS1 R2
+	ADDI R2 0 RV0
+
+	;add $v0, $s1, $v0 # add result of f(n-1) to it
+
+fibonacciExit:
+	; Epilogue
+	SYS RSP
+	SYS RA
+	
+	LDO RA RSP 2
+	LDO RS0 RSP 1
+	LDO RS1 RSP 0
+	
+	;lw $ra, 8($sp)
+	;lw $s0, 4($sp)
+	;lw $s1, 0($sp)
+	
+	SYS RSP	
+	
+	; unallocate stack
+	; addi $sp, $sp, 12
+	ADDI RSP 6 R2
+	ADDI R2 0 RSP
+
+	SYS RA
+	SYS RSP
+	; HALT
+	J RA

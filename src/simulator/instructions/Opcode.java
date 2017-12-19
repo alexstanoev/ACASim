@@ -26,6 +26,7 @@ public enum Opcode {
 	
 	// magic syscall
 	SYS(0x0D, "simulator.instructions.alu.SYSInstruction"),
+	SPC(0x0E, "simulator.instructions.alu.SPCInstruction"),
 
 	// LOAD/STORE
 	// load REG[OP1] into DMEM[R2]
@@ -34,6 +35,10 @@ public enum Opcode {
 	LDI(0x11, "simulator.instructions.lds.LDIInstruction"),
 	// store DMEM[R1] into REG[OP2]
 	ST(0x12, "simulator.instructions.lds.STInstruction"),
+	// store offset
+	STO(0x13, "simulator.instructions.lds.STOInstruction"),
+	// load offset
+	LDO(0x14, "simulator.instructions.lds.LDOInstruction"),
 
 	// BRANCH
 	// jump to address in register
@@ -42,15 +47,17 @@ public enum Opcode {
 	JI(0x21, "simulator.instructions.branch.JIInstruction"),
 	// jump relative
 	JR(0x22, "simulator.instructions.branch.JRInstruction"),
+	// jump and store PC
+	JAL(0x23, "simulator.instructions.branch.JALInstruction"),
 
 	// branch to address in R2 if R1 >= 0
-	BGEZ(0x23,"simulator.instructions.branch.BGEZInstruction"),
+	BGEZ(0x24,"simulator.instructions.branch.BGEZInstruction"),
 	// branch to address in R2 if R1 < 0
-	BLTZ(0x24, "simulator.instructions.branch.BLTZInstruction"),
+	BLTZ(0x25, "simulator.instructions.branch.BLTZInstruction"),
 	// branch to address in R2 if R1 != 0
-	BZ(0x25, "simulator.instructions.branch.BZInstruction"),
+	BZ(0x26, "simulator.instructions.branch.BZInstruction"),
 	// branch to address in R2 if R1 > 0
-	BGZ(0x26,"simulator.instructions.branch.BGZInstruction"),
+	BGZ(0x27,"simulator.instructions.branch.BGZInstruction"),
 
 	// FPU
 	FADD (0x31, "simulator.instructions.fpu.FADDInstruction"),

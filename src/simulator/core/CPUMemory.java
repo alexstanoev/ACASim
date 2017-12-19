@@ -12,7 +12,7 @@ public class CPUMemory {
 	public static final int RB_SIZE = 32;
 	public static final int WB_PER_CYCLE = 8;
 
-	public static final int MEMSIZE = 128;
+	public static final int MEMSIZE = 512;
 	public static final int NUMARCHREGS = 16;
 	public static final int NUMPHYSREGS = 64;
 
