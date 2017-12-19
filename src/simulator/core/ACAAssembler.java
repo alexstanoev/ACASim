@@ -7,6 +7,14 @@ import simulator.instructions.Opcode;
 
 public class ACAAssembler {
 
+	private static HashMap<String, String> registerAliases = new HashMap<String, String>();
+
+	static {
+		registerAliases.put("RZ", "R99");
+		registerAliases.put("RA", "R14");
+		registerAliases.put("RSP", "R15");
+	}
+
 	public static void main(String[] args) {
 		if(args.length != 2) {
 			System.err.println("Usage: assemble [src] [dest]");
@@ -21,6 +29,7 @@ public class ACAAssembler {
 			IOUtils.readFile(fileIn, in);
 		} catch(Exception e) {
 			e.printStackTrace();
+			return;
 		}
 
 		// first pass: labels
@@ -114,6 +123,10 @@ public class ACAAssembler {
 				throw new IllegalArgumentException();
 			}
 		} else if(src.startsWith("R")) {
+			if(registerAliases.containsKey(src)) {
+				src = registerAliases.get(src);
+			}
+
 			src = src.substring(1);
 			result = Integer.parseInt(src);
 		} else if(src.startsWith("0x")) {

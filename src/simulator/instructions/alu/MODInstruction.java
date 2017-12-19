@@ -8,15 +8,19 @@ import simulator.stages.ExecutionUnit;
 public class MODInstruction extends Instruction {
 
 	public MODInstruction() {
-		super(Opcode.MOD.hex(), 1, ExecutionUnit.ALU);
+		super(Opcode.MOD.hex(), 3, ExecutionUnit.ALU);
 	}
 
 	// MOD R1 R2 R3 -> R3 = R1 % R2
 	@Override
 	public void execute() {
 		if(super.cyclesPassed()) {
-			super.result = super.regval1 % super.regval2;
-			ACASim.dbgLog(super.regval1 + " % " + super.regval2 + " = " + super.result);
+			if(super.regval2 == 0) {
+				super.result = 0;
+			} else {
+				super.result = super.regval1 % super.regval2;
+				ACASim.dbgLog(super.regval1 + " % " + super.regval2 + " = " + super.result);
+			}
 		}
 	}
 

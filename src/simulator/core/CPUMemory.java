@@ -15,6 +15,7 @@ public class CPUMemory {
 	public static final int MEMSIZE = 128;
 	public static final int NUMARCHREGS = 16;
 	public static final int NUMPHYSREGS = 64;
+
 	public int[] DMEM = new int[MEMSIZE];
 
 	// instruction memory - contiguous, variable-length
@@ -30,7 +31,7 @@ public class CPUMemory {
 	// remap file
 	private int[] REG_MAPPING = new int[NUMARCHREGS];
 	private int[] REG_MAPPING_SAVED = new int[NUMARCHREGS];
-	
+
 	// remap ready tag
 	private boolean[] SCOREBOARD = new boolean[NUMPHYSREGS];
 
@@ -42,7 +43,7 @@ public class CPUMemory {
 	public int[] getDMem() {
 		return DMEM;
 	}
-	
+
 	public ArrayList<Integer> getIMemList() {
 		return imem;
 	}
@@ -65,27 +66,27 @@ public class CPUMemory {
 		these tags, so that it can mark the corresponding physical registers as ready. When all the operands of an instruction in an issue queue are ready,
 		that instruction is ready to issue. The issue queues pick ready instructions to send to the various functional units each cycle. 
 		Non-ready instructions stay in the issue queues.
-		
+
 		An exception or branch misprediction causes the remap file to back up to the remap state at last valid instruction. 
 	 */
 
 	public void saveRegMap() {
 		System.arraycopy(REG_MAPPING, 0, REG_MAPPING_SAVED, 0, NUMARCHREGS);
 	}
-	
+
 	public void restoreRegMap() {
 		System.arraycopy(REG_MAPPING_SAVED, 0, REG_MAPPING, 0, NUMARCHREGS);
 	}
-	
+
 	public int getArchReg(int archReg) {
 		if(REG_MAPPING[archReg] == -1) {
 			// not mapped, zero
 			return -2;
 		}
-		
+
 		return HWREG[REG_MAPPING[archReg]];
 	}
-	
+
 	public int getTagArchMap(int tag) {
 		for(int i = 0; i < NUMARCHREGS; i++) {
 			if(REG_MAPPING[i] == tag) {
@@ -96,7 +97,7 @@ public class CPUMemory {
 	}
 
 	public int getTag(int archReg) {
-		if(REG_MAPPING[archReg] == -1) {
+		if(archReg >= NUMARCHREGS || REG_MAPPING[archReg] == -1) {
 			// not mapped, zero
 			return -2;
 		}
@@ -148,13 +149,13 @@ public class CPUMemory {
 
 	private void gcTags() {
 		// need to leave the last copy of a register in case it is used in the future
-		
+
 		for(int i = 0; i < NUMPHYSREGS; i++) {
 			if(HWREG_ALLOC[i]) {
 				if(getTagArchMap(i) != -1) {
 					continue;
 				}
-				
+
 				boolean used = false;
 				for(Instruction rb : ACASim.getInstance().reorderBuffer) {
 					if(rb.usesTag(i)) {
@@ -217,5 +218,5 @@ public class CPUMemory {
 			}
 		}
 	}
-	
+
 }

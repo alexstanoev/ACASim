@@ -67,7 +67,7 @@ public class CPUView extends JFrame {
 		listImem = new JList();
 		scrollPaneImem.setViewportView(listImem);
 		listImem.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		listImem.setFont(new Font("Liberation Mono", Font.PLAIN, 12));
+		listImem.setFont(new Font("monospaced", Font.PLAIN, 12));
 
 		JScrollPane scrollPaneRegisters = new JScrollPane();
 		getContentPane().add(scrollPaneRegisters, "cell 3 1,grow");
@@ -75,7 +75,7 @@ public class CPUView extends JFrame {
 		tblRegisters = new JTable();
 		tblRegisters.setRowSelectionAllowed(false);
 		tblRegisters.setFillsViewportHeight(true);
-		tblRegisters.setFont(new Font("Liberation Mono", Font.PLAIN, 12));
+		tblRegisters.setFont(new Font("monospaced", Font.PLAIN, 12));
 		scrollPaneRegisters.setViewportView(tblRegisters);
 
 		JScrollPane scrollPaneDmem = new JScrollPane();
@@ -84,7 +84,7 @@ public class CPUView extends JFrame {
 		tblDmem = new JTable();
 		tblDmem.setRowSelectionAllowed(false);
 		tblDmem.setFillsViewportHeight(true);
-		tblDmem.setFont(new Font("Liberation Mono", Font.PLAIN, 12));
+		tblDmem.setFont(new Font("monospaced", Font.PLAIN, 12));
 
 		scrollPaneDmem.setViewportView(tblDmem);
 
@@ -145,6 +145,7 @@ public class CPUView extends JFrame {
 	@SuppressWarnings({ "rawtypes", "serial", "unchecked" })
 	public void setup() {
 		CPUMemory mem = ACASim.getInstance().mem();
+		if(mem == null) return;
 
 		// Imem
 

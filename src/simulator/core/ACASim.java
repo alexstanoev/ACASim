@@ -159,7 +159,7 @@ public class ACASim {
 		instructionsRetired = 0;
 		setup();
 		if(useGUI) {
-			guiInst.update();
+			//guiInst.update();
 		}
 	}
 

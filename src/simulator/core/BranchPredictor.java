@@ -9,11 +9,16 @@ import simulator.stages.Stage;
 
 public class BranchPredictor {
 
+	public static final int BP_LRU_SIZE = 10;
+	public static final boolean BP_DYNAMIC = true;
+
 	private boolean predictedContext = false;
 	private boolean stallDecode = false;
 
 	private int oldPC;
 	private int predictedPC;
+
+	private LRUCache<Integer, BPSaturatingState> dynamicLRU = new LRUCache<>(BP_LRU_SIZE);
 
 	public void beforeBranchExecuted(Instruction instr) {
 		ACASim.dbgLog("BEFORE BRANCH EXECUTED PC=" + ACASim.getInstance().mem().PC);
@@ -28,7 +33,7 @@ public class BranchPredictor {
 		//predictedPC = -1;
 
 		int jumpTargetPC = (ACASim.getInstance().mem().PC == oldPC) ? instr.getAddress() + 1 : ACASim.getInstance().mem().PC;
-		
+
 		if(jumpTargetPC == predictedPC) {
 
 			ACASim.dbgLog("Reverting from PC " + ACASim.getInstance().mem().PC + " to " + oldPC);
@@ -41,6 +46,12 @@ public class BranchPredictor {
 			for(Instruction rbi : ACASim.getInstance().reorderBuffer) {
 				if(rbi.isSpeculative()) {
 					rbi.setSpeculative(false);
+				}
+			}
+
+			if(BP_DYNAMIC) {
+				if(dynamicLRU.containsKey(instr.getAddress())) {
+					dynamicLRU.replace(instr.getAddress(), dynamicLRU.get(instr.getAddress()).inc());
 				}
 			}
 		} else {
@@ -58,7 +69,7 @@ public class BranchPredictor {
 			//		ACASim.dbgLog("spec: " + ins);
 			//	}
 			//}
-			
+
 			// guess was incorrect, drop all speculative instructions
 			while(ACASim.getInstance().reorderBuffer.size() > 0 && ACASim.getInstance().reorderBuffer.peekFirst().isSpeculative()) {
 				Instruction rm = ACASim.getInstance().reorderBuffer.removeFirst();
@@ -71,6 +82,12 @@ public class BranchPredictor {
 
 			((FetchStage) (ACASim.getInstance().pipeline.get(Stage.FETCH.val()))).flushBuffer();
 			((DecodeStage) (ACASim.getInstance().pipeline.get(Stage.DECODE.val()))).flushBuffer();
+
+			if(BP_DYNAMIC) {
+				if(dynamicLRU.containsKey(instr.getAddress())) {
+					dynamicLRU.replace(instr.getAddress(), dynamicLRU.get(instr.getAddress()).dec());
+				}
+			}
 		}
 		// if the guess was correct then remove the speculative and no execute bit from every instr in the reorder buffer after targetaddr
 		// otherwise remove all instrs from rb after targetaddr
@@ -87,10 +104,10 @@ public class BranchPredictor {
 				return false;
 			}
 		}
-		
+
 		return true;
 	}
-	
+
 	public int onInstructionDecoded(Instruction instr) {
 		if(instr.getEU() == ExecutionUnit.BRANCH) {
 			if(predictedContext) {
@@ -108,11 +125,10 @@ public class BranchPredictor {
 
 			// TODO decode target PC from instruction
 			// predict taken or not taken
-			// keep branch delay slots in mind
 			int decodedPC = decodePC(instr);
-			boolean prediction = predictBranch(instr, decodedPC);
+			boolean prediction = decodedPC == -1 ? false : predictBranch(instr, decodedPC);
 
-			if(decodedPC != -1 && prediction) {
+			if(prediction) {
 				predictedPC = decodedPC;
 
 				ACASim.dbgLog("Predict taken PC " + ACASim.getInstance().mem().PC + " -> " + predictedPC);
@@ -121,9 +137,9 @@ public class BranchPredictor {
 			} else {
 				//predictedPC = ACASim.getInstance().mem().PC + 1;
 				predictedPC = instr.getAddress() + 1;
-				ACASim.dbgLog("Predict not taken PC " + ACASim.getInstance().mem().PC + " -> " + predictedPC);
+				ACASim.dbgLog("Predict not taken PC " + ACASim.getInstance().mem().PC + " -> " + (instr.getAddress() + 1));
 			}
-			
+
 			// ideally this shouldn't be done when predicting not taken
 			//ACASim.getInstance().mem().PC = predictedPC;
 
@@ -131,7 +147,7 @@ public class BranchPredictor {
 
 			// decode should ignore the rest of the bundle if we predicted taken
 			return decodedPC != -1 && prediction ? 2 : 0;
-			
+
 			// temporary hack: always drop the bundle to work around the early halt bug
 			//return 2;
 		} else {
@@ -173,6 +189,25 @@ public class BranchPredictor {
 	}
 
 	private boolean predictBranch(Instruction instr, int decodedPC) {
+		if(!BP_DYNAMIC) {
+			return predictBranchStatic(instr, decodedPC);
+		} else {
+			if(!dynamicLRU.containsKey(instr.getAddress())) {
+				boolean staticPred = predictBranchStatic(instr, decodedPC);
+
+				BPSaturatingState cacheVal = staticPred ? BPSaturatingState.WEAK_YES : BPSaturatingState.WEAK_NO;
+				dynamicLRU.put(instr.getAddress(), cacheVal);
+
+				return staticPred;
+			} else {
+				BPSaturatingState cacheVal = dynamicLRU.get(instr.getAddress());
+
+				return (cacheVal == BPSaturatingState.WEAK_YES || cacheVal == BPSaturatingState.WEAK_NO);
+			}
+		}
+	}
+
+	private boolean predictBranchStatic(Instruction instr, int decodedPC) {
 		if(instr.getOpcode() == Opcode.JI || instr.getOpcode() == Opcode.J) {
 			// unconditional
 			return true;
@@ -197,5 +232,30 @@ public class BranchPredictor {
 
 	public boolean allowDecodeTransactions() {
 		return !stallDecode;
+	}
+
+	enum BPSaturatingState {
+		STRONG_NO(0), WEAK_NO(1), WEAK_YES(2), STRONG_YES(3);
+
+		private int _num;
+		BPSaturatingState(int num) {
+			_num = num;
+		}
+
+		public BPSaturatingState inc() {
+			if(_num < 3) {
+				return values()[_num + 1];
+			}
+
+			return values()[_num];
+		}
+
+		public BPSaturatingState dec() {
+			if(_num > 0) {
+				return values()[_num - 1];
+			}
+
+			return values()[_num];
+		}
 	}
 }

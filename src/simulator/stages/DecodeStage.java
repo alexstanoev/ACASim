@@ -196,6 +196,8 @@ public class DecodeStage implements IPipelineStage {
 			ACASim.getInstance().reorderBuffer.push(instr);
 			
 			if(flush) {
+				held = null;
+				next = null;
 				break;
 			}
 		}
@@ -251,6 +253,7 @@ public class DecodeStage implements IPipelineStage {
 			throw new IllegalStateException("Attempted to pass non-bundle to decode stage");
 		}
 
+		ACASim.dbgLog("set next");
 		next = (InstructionBundle) tr;
 	}
 
