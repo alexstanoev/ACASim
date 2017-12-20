@@ -18,11 +18,13 @@ public abstract class Instruction implements IStageTransaction {
 
 	protected int srcreg1 = -1;
 	protected int srcreg2 = -1;
+	protected int srcreg3 = -1;
 	protected int destreg = -1; // destination register
 	protected int archdestreg = -1;
 
 	protected int regval1 = -1;
 	protected int regval2 = -1;
+	protected int regval3 = -1;
 
 	protected Integer result = null; // temporary result (from Execute stage), written to dest in WriteBack stage
 	protected int clockCycles; // clock cycles before the result is released
@@ -93,6 +95,11 @@ public abstract class Instruction implements IStageTransaction {
 			//ACASim.dbgLog("SR2 " + cpu.mem().isSBAvail(srcreg2));
 		}
 
+		if(srcreg3 != -1) {
+			avail = avail && cpu.mem().isSBAvail(srcreg3);
+			//ACASim.dbgLog("SR2 " + cpu.mem().isSBAvail(srcreg2));
+		}
+
 		ACASim.dbgLog(opcode + " avail operands: " + avail + " " + srcreg1 + " " + srcreg2);
 
 		return avail;
@@ -107,6 +114,10 @@ public abstract class Instruction implements IStageTransaction {
 
 		if(srcreg2 != -1) {
 			this.regval2 = cpu.mem().readReg(srcreg2);
+		}
+
+		if(srcreg3 != -1) {
+			this.regval3 = cpu.mem().readReg(srcreg3);
 		}
 	}
 
