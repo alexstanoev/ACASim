@@ -16,7 +16,7 @@ public class ACASim {
 
 	private static ACASim inst;
 
-	private static boolean debug = true;
+	private static boolean debug = false;
 	private static boolean useGUI = true;
 
 	private static String filename = "prog/test.hex";
@@ -338,7 +338,8 @@ public class ACASim {
 		run = false;
 		double ipc = clockTicks > 0 ? (double) Math.round(((double) instructionsRetired / clockTicks) * 100D) / 100D : 0;
 		System.out.println("Halting at " + clockTicks + " clock cycles. (" + (System.currentTimeMillis() - startTime) + " ms) IPC: " + ipc +
-				" Branches correct: " + branchPredictor.correctGuesses + "/" + branchPredictor.branchesExecuted + " total");
+				" Branches correct: " + branchPredictor.correctGuesses + "/" + branchPredictor.branchesExecuted + " total (" 
+				+ Math.round((((double) branchPredictor.correctGuesses / branchPredictor.branchesExecuted) * 10000) / 100D) + "%)");
 
 		printRegisters();
 		// TODO print IPC (retired instructions), instr. executed, clock cycles

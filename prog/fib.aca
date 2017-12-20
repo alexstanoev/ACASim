@@ -5,7 +5,9 @@
 MOVI 0 0xFF RSP
 
 ; initial function arg
-MOVI 0 11 RF0
+MOVI 0 20 RF0
+; print it
+SYS RF0
 
 ; Call fibonacci
 SPC 2 RA

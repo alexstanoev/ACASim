@@ -22,8 +22,8 @@ public class BranchPredictor {
 	private int oldPC;
 	private int predictedPC;
 
-	private LRUCache<Integer, BPSaturatingState> dynamicLRU = new LRUCache<>(BP_LRU_SIZE);
-	private LRUCache<Integer, Integer> BTAC = new LRUCache<>(BP_BTAC_SIZE);
+	private LRUCache<Integer, BPSaturatingState> dynamicLRU = new LRUCache<Integer, BPSaturatingState>(BP_LRU_SIZE);
+	private LRUCache<Integer, Integer> BTAC = new LRUCache<Integer, Integer>(BP_BTAC_SIZE);
 
 	public void beforeBranchExecuted(Instruction instr) {
 		ACASim.dbgLog("BEFORE BRANCH EXECUTED PC=" + ACASim.getInstance().mem().PC);
@@ -44,6 +44,26 @@ public class BranchPredictor {
 			BTAC.put(instr.getAddress(), ACASim.getInstance().mem().PC);
 			ACASim.dbgLog("BTAC PUT " + instr.getAddress() + " to " + ACASim.getInstance().mem().PC);
 		}
+		
+		if(ACASim.getInstance().mem().PC != oldPC) {
+			// taken
+			if(BP_DYNAMIC) {
+				if(dynamicLRU.containsKey(instr.getAddress())) {
+					dynamicLRU.put(instr.getAddress(), dynamicLRU.get(instr.getAddress()).inc());
+				} else {
+					dynamicLRU.put(instr.getAddress(), BPSaturatingState.WEAK_YES);
+				}
+			}
+		} else {
+			// not taken
+			if(BP_DYNAMIC) {
+				if(dynamicLRU.containsKey(instr.getAddress())) {
+					dynamicLRU.put(instr.getAddress(), dynamicLRU.get(instr.getAddress()).dec());
+				} else {
+					dynamicLRU.put(instr.getAddress(), BPSaturatingState.WEAK_NO);
+				}
+			}
+		}
 
 		if(jumpTargetPC == predictedPC) {
 			correctGuesses++;
@@ -61,11 +81,6 @@ public class BranchPredictor {
 				}
 			}
 
-			if(BP_DYNAMIC) {
-				if(dynamicLRU.containsKey(instr.getAddress())) {
-					dynamicLRU.replace(instr.getAddress(), dynamicLRU.get(instr.getAddress()).inc());
-				}
-			}
 		} else {
 			ACASim.dbgLog("GUESS INCORRECT PC:" + ACASim.getInstance().mem().PC + " PRED:" + predictedPC + " OLD:" + oldPC + " NEXTI:" + (instr.getAddress() + 1));
 
@@ -96,11 +111,6 @@ public class BranchPredictor {
 			((FetchStage) (ACASim.getInstance().pipeline.get(Stage.FETCH.val()))).flushBuffer();
 			((DecodeStage) (ACASim.getInstance().pipeline.get(Stage.DECODE.val()))).flushBuffer();
 
-			if(BP_DYNAMIC) {
-				if(dynamicLRU.containsKey(instr.getAddress())) {
-					dynamicLRU.replace(instr.getAddress(), dynamicLRU.get(instr.getAddress()).dec());
-				}
-			}
 		}
 		// if the guess was correct then remove the speculative and no execute bit from every instr in the reorder buffer after targetaddr
 		// otherwise remove all instrs from rb after targetaddr
@@ -226,7 +236,7 @@ public class BranchPredictor {
 		} else {
 			BPSaturatingState cacheVal = dynamicLRU.get(instr.getAddress());
 
-			return (cacheVal == BPSaturatingState.WEAK_YES || cacheVal == BPSaturatingState.WEAK_NO);
+			return (cacheVal == BPSaturatingState.WEAK_YES || cacheVal == BPSaturatingState.STRONG_YES);
 		}
 	}
 
