@@ -1,5 +1,5 @@
 ; num ints
-MOVI 0 10 RF1
+MOVI 0 20 RF1
 
 ; array base
 MOVI 0 0 RF0
@@ -25,65 +25,63 @@ HALT
 sort:
 	; outer num iterations R2
 	ADDI RF1 0 R2
-outerLoop:
-	; inner loop counter R3
-	XOR R3 R3 R3
-innerLoop:
-	; first int
-	LD RF0 R3 R4
-	; second int
-	ADDI R3 1 R6
-	LD RF0 R6 R5
-
-	; if n[0] < n[+1] then swap
-	; R6 will be 0 or 1 otherwise
-	CMP R4 R5 R7
-	BGEZ R7 %skipSwap
-	
-	; put back swapped
-	;ST RF0 R3 R5
-	;ST RF0 R6 R4
-	STO R5 R3 0
-	STO R4 R6 0
-
-	skipSwap:
-	; inner loop j++
-	ADDI R3 1 R7
-	ADDI R7 0 R3
-   
-	; if j < iter go back
-	CMP R3 RF1 R7
-	BLTZ R7 %innerLoop
-
-	; outer loop i--
-	SUBI R2 1 R7
-	ADDI R7 0 R2
-	
-	; if i > 0 go back
-	BGZ R2 %outerLoop
-
-    ; return to caller
-    J RA
+	outerLoop:
+		; inner loop counter R3
+		XOR R3 R3 R3
+		innerLoop:
+			; first int
+			LD RF0 R3 R4
+			; second int
+			ADDI R3 1 R6
+			LD RF0 R6 R5
+		
+			; if n[0] < n[+1] then swap
+			; R6 will be 0 or 1 otherwise
+			CMP R4 R5 R7
+			BGEZ R7 %skipSwap
+			
+			; put back swapped
+			;ST RF0 R3 R5
+			;ST RF0 R6 R4
+			STO R5 R3 0
+			STO R4 R6 0
+		
+			skipSwap:
+			; inner loop j++
+			ADDI R3 1 R7
+			ADDI R7 0 R3
+		   
+			; if j < iter go back
+			CMP R3 RF1 R7
+			BLTZ R7 %innerLoop
+		; outer loop i--
+		SUBI R2 1 R7
+		ADDI R7 0 R2
+		
+		; if i > 0 go back
+		BGZ R2 %outerLoop
+	; return to caller
+	J RA
 
 printArr:
 	; num iterations
 	ADDI RF1 0 R2
 	; offset
 	XOR R3 R3 R3
-printArrLoop:
-	; get int at mem[base + offset]
-	LD RF0 R3 R4
-	; print
-	SYS R4
-
-	; offset++
-	ADDI R3 1 R4
-	ADDI R4 0 R3
-
-	; loop
-    SUBI R2 1 R4
-    ADDI R4 0 R2
-    BGZ R4 %printArrLoop
+	printArrLoop:
+		; get int at mem[base + offset]
+		LD RF0 R3 R4
+		; print
+		SYS R4
+	
+		; offset++
+		ADDI R3 1 R4
+		ADDI R4 0 R3
+	
+		; loop
+	    SUBI R2 1 R4
+	    ADDI R4 0 R2
+	    BGZ R4 %printArrLoop
 
     ; return to caller
     J RA
