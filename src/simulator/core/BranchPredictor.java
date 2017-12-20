@@ -12,10 +12,14 @@ public class BranchPredictor {
 	public static final int BP_LRU_SIZE = 1024;
 	public static final int BP_BTAC_SIZE = 16;
 	public static final boolean BP_DYNAMIC = true;
+	public static final boolean BP_USE_BTAC = true;
+	public static final boolean BP_FIXED_PRED = false;
+	public static final boolean BP_FIXED_PRED_RET = false;
 
 	public int branchesExecuted = 0;
+	public int branchesTaken = 0;
 	public int correctGuesses = 0;
-	
+
 	private boolean predictedContext = false;
 	private boolean stallDecode = false;
 
@@ -39,12 +43,16 @@ public class BranchPredictor {
 		//predictedPC = -1;
 
 		int jumpTargetPC = (ACASim.getInstance().mem().PC == oldPC) ? instr.getAddress() + 1 : ACASim.getInstance().mem().PC;
+
+		if(ACASim.getInstance().mem().PC != oldPC) {
+			branchesTaken++;
+		}
 		
-		if(instr.getOpcode() == Opcode.J && ACASim.getInstance().mem().PC != oldPC) {
+		if(instr.getOpcode() == Opcode.J && ACASim.getInstance().mem().PC != oldPC && BP_USE_BTAC) {
 			BTAC.put(instr.getAddress(), ACASim.getInstance().mem().PC);
 			ACASim.dbgLog("BTAC PUT " + instr.getAddress() + " to " + ACASim.getInstance().mem().PC);
 		}
-		
+
 		if(ACASim.getInstance().mem().PC != oldPC) {
 			// taken
 			if(BP_DYNAMIC) {
@@ -199,6 +207,7 @@ public class BranchPredictor {
 			break;
 		case BGEZ:
 		case BLTZ:
+		case BGZ:
 		case BZ:
 			predictedPC = (instr.getRawOpcode() & Opcode.MSK_OP2) >> 8;
 			break;
@@ -245,6 +254,11 @@ public class BranchPredictor {
 		if(instr.getOpcode() == Opcode.JI || instr.getOpcode() == Opcode.J) {
 			// unconditional
 			return true;
+		}
+
+		// always taken / not taken
+		if(BP_FIXED_PRED) {
+			return BP_FIXED_PRED_RET;
 		}
 
 		// can't predict Opcode.JR yet

@@ -30,7 +30,7 @@ public class SYSInstruction extends Instruction {
 	@Override
 	public void writeBack() {
 		//super._writeBack();
-		System.out.println("SYS OUT " + getAddress() + ": " + super.regval1);
+		System.out.println("OUT L" + String.format("%02d", getAddress()) + ": " + super.regval1);
 	}
 
 }

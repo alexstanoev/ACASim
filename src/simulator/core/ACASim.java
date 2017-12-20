@@ -339,7 +339,7 @@ public class ACASim {
 		double ipc = clockTicks > 0 ? (double) Math.round(((double) instructionsRetired / clockTicks) * 100D) / 100D : 0;
 		System.out.println("Halting at " + clockTicks + " clock cycles. (" + (System.currentTimeMillis() - startTime) + " ms) IPC: " + ipc +
 				" Branches correct: " + branchPredictor.correctGuesses + "/" + branchPredictor.branchesExecuted + " total (" 
-				+ Math.round((((double) branchPredictor.correctGuesses / branchPredictor.branchesExecuted) * 10000) / 100D) + "%)");
+				+ Math.round((((double) branchPredictor.correctGuesses / branchPredictor.branchesExecuted) * 10000) / 100D) + "%) taken: " + branchPredictor.branchesTaken);
 
 		printRegisters();
 		// TODO print IPC (retired instructions), instr. executed, clock cycles
