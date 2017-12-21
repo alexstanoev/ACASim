@@ -400,13 +400,13 @@ public class CPUView extends JFrame {
 			tblDmem.getModel().setValueAt(String.format(MEM_BITS_FMT, val), j++, 1);
 		}
 
-		lblState.setText("TICKS: 15 IRET: 34 IPC: 15"); // TODO
+		lblState.setText(""); // what to put here?
 	}
 
 	public void cpuHalted() {
 		btnRun.setText("Run");
 	}
-	
+
 	public class ColouredCellRenderer extends javax.swing.table.DefaultTableCellRenderer {
 		private static final long serialVersionUID = 1L;
 

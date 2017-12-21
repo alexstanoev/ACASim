@@ -344,11 +344,6 @@ public class ACASim {
 	}
 
 	public void halt() {
-		if(useGUI) {
-			guiInst.update();
-			guiInst.cpuHalted();
-		}
-
 		run = false;
 		double ipc = clockTicks > 0 ? (double) Math.round(((double) instructionsRetired / clockTicks) * 100D) / 100D : 0;
 		System.out.println("Halting at " + clockTicks + " clock cycles after " + (System.currentTimeMillis() - startTime) + " ms | IPC: " + ipc +
@@ -361,6 +356,17 @@ public class ACASim {
 
 		if(!useGUI) {
 			System.exit(0);
+		} else {
+			// let the gui update
+			try {
+				SwingUtilities.invokeAndWait(new Runnable() {
+					@Override
+					public void run() {
+						guiInst.update();
+						guiInst.cpuHalted();
+					}
+				});
+			} catch(Exception e) { }
 		}
 	}
 
