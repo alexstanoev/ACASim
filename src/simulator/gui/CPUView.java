@@ -224,6 +224,7 @@ public class CPUView extends JFrame {
 
 	public void update() {
 		CPUMemory mem = ACASim.getInstance().mem();
+		if(mem == null) return;
 
 		listImem.setSelectedIndex(mem.PC);
 

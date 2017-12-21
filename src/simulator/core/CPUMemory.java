@@ -154,10 +154,10 @@ public class CPUMemory {
 				avail++;
 			}
 		}
-		
+
 		return avail;
 	}
-	
+
 	public void gcTags() {
 		// need to leave the last copy of a register in case it is used in the future
 
@@ -195,7 +195,7 @@ public class CPUMemory {
 
 		// out of registers, hope a gc will help
 		gcTags();
-		
+
 		return allocTag(archReg);
 	}
 

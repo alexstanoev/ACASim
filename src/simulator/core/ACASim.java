@@ -28,6 +28,7 @@ public class ACASim {
 	private CPUMemory state;
 	public int clockTicks = 0;
 	public int instructionsRetired = 0;
+	public int instructionsExecuted = 0;
 	private long startTime;
 
 	private volatile boolean run = false;
@@ -44,11 +45,14 @@ public class ACASim {
 
 	public static void main(String[] args) {
 		if(args.length == 0) {
-			System.out.println("Usage: sim [filename] [gui|nogui]");
+			System.err.println("Usage: sim.jar [filename] (gui|nogui)");
 			return;
 		}
 
-		if(args.length > 1) {
+		if(args.length == 1) {
+			filename = args[0];
+			useGUI = false;
+		} else if(args.length > 1) {
 			filename = args[0];
 
 			if(args[1].equals("gui")) {
@@ -168,6 +172,10 @@ public class ACASim {
 	public void setSleepMs(int ms) {
 		clockSleepMs = ms;
 	}
+
+	public boolean isRunning() {
+		return run;
+	}
 	// end
 
 	private void stepPipeline() {
@@ -213,12 +221,18 @@ public class ACASim {
 		clockTicks++;
 
 		if(useGUI) {
-			SwingUtilities.invokeLater(new Runnable() {
-				@Override
-				public void run() {
-					guiInst.update();
+			if(clockSleepMs > 0 || (clockSleepMs == 0 && clockTicks % 1000 == 0)) {
+				try {
+					SwingUtilities.invokeLater(new Runnable() {
+						@Override
+						public void run() {
+							guiInst.update();
+						}
+					});
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
-			});
+			}
 		}
 
 
@@ -337,12 +351,13 @@ public class ACASim {
 
 		run = false;
 		double ipc = clockTicks > 0 ? (double) Math.round(((double) instructionsRetired / clockTicks) * 100D) / 100D : 0;
-		System.out.println("Halting at " + clockTicks + " clock cycles. (" + (System.currentTimeMillis() - startTime) + " ms) IPC: " + ipc +
-				" Branches correct: " + branchPredictor.correctGuesses + "/" + branchPredictor.branchesExecuted + " total (" 
-				+ Math.round((((double) branchPredictor.correctGuesses / branchPredictor.branchesExecuted) * 10000) / 100D) + "%) taken: " + branchPredictor.branchesTaken);
+		System.out.println("Halting at " + clockTicks + " clock cycles after " + (System.currentTimeMillis() - startTime) + " ms | IPC: " + ipc +
+				" | Branches correct: " + branchPredictor.correctGuesses + "/" + branchPredictor.branchesExecuted + " total (" 
+				+ Math.round((((double) branchPredictor.correctGuesses / branchPredictor.branchesExecuted) * 10000) / 100D) 
+				+ "%) | Instructions executed: " + instructionsExecuted + "/" + instructionsRetired + " retired ("
+				+ Math.round((((double) instructionsRetired / instructionsExecuted) * 10000) / 100D) + "%)");
 
 		printRegisters();
-		// TODO print IPC (retired instructions), instr. executed, clock cycles
 
 		if(!useGUI) {
 			System.exit(0);

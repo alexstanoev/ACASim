@@ -47,6 +47,7 @@ public class ExecutionUnitStage implements IPipelineStage {
 		curr.execute();
 		
 		if(curr.isResultAvailable()) {
+			ACASim.getInstance().instructionsExecuted++;
 			
 			if(type == ExecutionUnit.BRANCH) {
 				ACASim.getInstance().branchPredictor.onBranchExecuted(curr);
